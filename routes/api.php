@@ -57,16 +57,9 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     });
 
 
-    // Dua & Dua SubCategory
-    Route::controller(DuaController::class)->group(function () {
-        Route::get('/dua-subcategories/{cat_id}', 'DuaSubCategories');
-        Route::get('/subcategories/{subcat_id}', 'SubCatGetDua');
-
-    });
-
-    // Firebase Token Module
-    Route::post("firebase/token/add", [FirebaseTokenController::class, "store"]);
-    Route::post("firebase/token/get", [FirebaseTokenController::class, "getToken"]);
-    Route::post("firebase/token/detele", [FirebaseTokenController::class, "deleteToken"]);
+    // // Firebase Token Module
+    // Route::post("firebase/token/add", [FirebaseTokenController::class, "store"]);
+    // Route::post("firebase/token/get", [FirebaseTokenController::class, "getToken"]);
+    // Route::post("firebase/token/detele", [FirebaseTokenController::class, "deleteToken"]);
 });
 

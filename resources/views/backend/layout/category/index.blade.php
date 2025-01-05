@@ -2,12 +2,19 @@
 @push('style')
     <link rel="stylesheet" href="{{ asset('backend/assets/datatable/css/datatables.min.css') }}">
 @endpush
-@section('title', 'Users')
+@section('title', 'Category List')
 @section('content')
     <div class="app-content content ">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Users List</h3>
+                <h3 class="card-title">Category List</h3>
+                <div>
+                    <button type='button' style='min-width: 115px;' class='btn btn-danger delete_btn d-none'
+                        onclick='multi_delete()'>Bulk Delete</button>
+                    <a href="{{ route('admin.category.create') }}" class="btn btn-primary" type="button">
+                        <span>Add Category</span>
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive mt-4 p-4 card-datatable table-responsive pt-0">
@@ -16,12 +23,13 @@
                             <tr>
                                 <th>
                                     <div class="form-checkbox">
-                                        <input type="checkbox" class="form-check-input" id="select_all" onclick="select_all()">
+                                        <input type="checkbox" class="form-check-input" id="select_all"
+                                            onclick="select_all()">
                                         <label class="form-check-label" for="select_all"></label>
                                     </div>
                                 </th>
-                                <th>Username</th>
-                                <th>Email</th>
+                                <th>Title</th>
+                                <th>Image</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -40,6 +48,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
+            let table = document.getElementById("data-table");
             $(document).ready(function() {
                 var searchable = [];
                 var selectable = [];
@@ -64,7 +73,7 @@
                                             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                             </div>
-                                        </div>`
+                                        </div>`,
                         },
 
                         scroller: {
@@ -73,26 +82,25 @@
                         pagingType: "full_numbers",
                         dom: "<'row justify-content-between table-topbar'<'col-md-2 col-sm-4 px-0'l><'col-md-2 col-sm-4 px-0'f>>tipr",
                         ajax: {
-                            url: "{{ route('user.list') }}",
+                            url: "{{ route('admin.category.index') }}",
                             type: "get",
                         },
 
-                        columns: [
-                            {
+                        columns: [{
                                 data: 'bulk_check',
                                 name: 'bulk_check',
                                 orderable: false,
                                 searchable: false
                             },
                             {
-                                data: 'username',
-                                name: 'username',
+                                data: 'title',
+                                name: 'title',
                                 orderable: false,
                                 searchable: false
                             },
                             {
-                                data: 'email',
-                                name: 'email',
+                                data: 'image',
+                                name: 'image',
                                 orderable: false,
                                 searchable: false
                             },
@@ -117,7 +125,7 @@
                 }
             });
 
-            function showDeleteConfirm(id, deleteUrl) {
+            function showDeleteAlert(id) {
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "You won't be able to revert this!",
@@ -128,12 +136,13 @@
                     confirmButtonText: 'Yes, delete it!',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        deleteArticle(id, deleteUrl);
+                        deleteArticle(id);
                     }
                 });
             }
 
-            function deleteArticle(id, deleteUrl) {
+            function deleteArticle(id) {
+                let deleteUrl = '{{ route('admin.category.destroy', ':id') }}'.replace(':id', id);
                 fetch(deleteUrl, {
                         method: 'DELETE',
                         headers: {
@@ -145,7 +154,7 @@
                         if (data.success) {
                             Swal.fire(
                                 'Deleted!',
-                                'Your article has been deleted.',
+                                'Your item has been deleted.',
                                 'success'
                             );
 
@@ -212,6 +221,32 @@
                         // location.reload();
                     }
                 })
+            }
+
+
+
+
+            function multi_delete() {
+                let ids = [];
+                let rows;
+                // Use the DataTable instance
+                let dTable = $('#data-table').DataTable();
+
+                $('.select_data:checked').each(function() {
+                    ids.push($(this).val());
+                    rows = dTable.rows($(this).parents('tr')); // Use DataTable rows() method
+                });
+
+                if (ids.length == 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Error',
+                        text: 'Please check at least one row of the table!',
+                    });
+                } else {
+                    let url = "{{ route('admin.category.bulk-delete') }}";
+                    bulk_delete(ids, url, rows, dTable);
+                }
             }
         </script>
     @endpush

@@ -89,6 +89,7 @@ class UserAuthController extends Controller
 
     public function login(Request $request)
     {
+        dd($request);
         $credentials = $request->only('email', 'password');
 
         // Attempt to log the user in

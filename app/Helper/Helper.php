@@ -20,4 +20,12 @@ class Helper
         return $path;
     }
 
+    public static function tableCheckbox($row_id)
+    {
+        return '<div class="form-checkbox">
+                <input type="checkbox" class="form-check-input select_data" id="checkbox-' . $row_id . '" value="' . $row_id . '" onClick="select_single_item(' . $row_id . ')">
+                <label class="form-check-label" for="checkbox-' . $row_id . '"></label>
+            </div>';
+    }
+
 }

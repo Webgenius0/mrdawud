@@ -2,8 +2,8 @@
 namespace App\Traits;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use App\Notifications\OtpNotification;
+use Illuminate\Support\Facades\Hash;
 
 trait apiresponse
 {
@@ -30,7 +30,7 @@ trait apiresponse
     public function generateOtp(User $user)
     {
         $otp = rand(1000, 9999);
-        $user->otp = Hash::make($otp); 
+        $user->otp = Hash::make($otp);
         $user->otp_created_at = now();
 
         $user->notify(new OtpNotification($otp));
