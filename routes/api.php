@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\backend\Auth;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
+use App\Http\Controllers\API\SocialmediaController;
+use App\Http\Controllers\API\VideoUploadController;
+use App\Http\Controllers\API\RemainderController;
 
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -147,5 +150,19 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post("firebase/token/add", [FirebaseTokenController::class, "store"]);
     Route::post("firebase/token/get", [FirebaseTokenController::class, "getToken"]);
     Route::post("firebase/token/detele", [FirebaseTokenController::class, "deleteToken"]);
+
+    //social media
+    Route::controller(SocialmediaController::class)->group(function () {
+        Route::post('add-social-media', 'addSocialMedia');
+    });
+
+    //Videp Upload
+    Route::controller(VideoUploadController::class)->group(function () {
+        Route::post('video-upload', 'uploadVideo');
+    });
+    //Reminder
+    Route::controller(RemainderController::class)->group(function () {
+        Route::post('reminder-add', 'remainder');
+    });
 });
 
