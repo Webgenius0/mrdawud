@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\backend\UserController;
 use App\Http\Controllers\Web\backend\SettingController;
 use App\Http\Controllers\Web\backend\admin\FAQController;
+use App\Http\Controllers\Web\backend\CategoryController;
+use App\Http\Controllers\Web\backend\ProductController;
 use App\Http\Controllers\Web\backend\settings\DynamicPagesController;
 use App\Http\Controllers\Web\backend\settings\ProfileSettingController;
 
@@ -47,16 +49,28 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
-    //Locations Pages Route
-    Route::prefix('location')->controller(LocationController::class)->group(function () {
-        Route::get('/list', 'index')->name('admin.location.list');
-        Route::get('/create', 'create')->name('admin.location.create');
-        Route::post('/store', 'store')->name('admin.location.store');
-        Route::get('/edit/{id}', 'edit')->name('admin.location.edit');
-        Route::post('/update/{id}', 'update')->name('admin.location.update');
-        Route::delete('/destroy/{id}', 'destroy')->name('admin.location.destroy');
-        Route::get('/status/{id}', 'status')->name('admin.location.status');
+    // Category Route
+    Route::prefix('category')->controller(CategoryController::class)->as('admin.category.')->group(function () {
+        Route::get('/list', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/edit/{category}', 'edit')->name('edit');
+        Route::post('/update', 'update')->name('update');
+        Route::delete('/destroy/{category}', 'destroy')->name('destroy');
+        Route::get('/status/{id}', 'status')->name('status');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
+    });
 
+    //product Route
+    Route::prefix('product')->controller(ProductController::class)->as('admin.product.')->group(function () {
+        Route::get('/list', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/edit/{product}', 'edit')->name('edit');
+        Route::post('/update', 'update')->name('update');
+        Route::delete('/destroy/{product}', 'destroy')->name('destroy');
+        Route::get('/status/{id}', 'status')->name('status');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
     });
 
     //Dynamic Pages Route

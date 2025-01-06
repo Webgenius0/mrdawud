@@ -76,11 +76,21 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item {{ request()->routeIs('admin.location.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{ route('admin.location.list') }}">
+            <li class="nav-item {{ request()->routeIs('admin.category.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('admin.category.index') }}">
                     <i data-feather="grid"></i>
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
-                        Locations
+                        Categories
+                    </span>
+                </a>
+            </li>
+
+
+              <li class="nav-item {{ request()->routeIs('admin.product.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('admin.product.index') }}">
+                    <i data-feather="grid"></i>
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        Product
                     </span>
                 </a>
             </li>

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\backend\Auth;
+use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
 use App\Http\Controllers\API\SocialmediaController;
@@ -85,5 +86,15 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::controller(RemainderController::class)->group(function () {
         Route::post('reminder-add', 'remainder');
     });
+
+
+    Route::middleware(['auth:api', 'admin'])->group(function () {
+
+        Route::post('/category', [CategoryController::class, 'addCategory']);
+        //Route::post('/admin/products', [CategoryController::class, 'store']);
+        
+    });
+
+   
 });
 

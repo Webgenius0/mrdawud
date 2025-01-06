@@ -234,7 +234,7 @@
                         <i class="mr-50" data-feather="settings"></i>
                         Settings
                     </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\backend;
 
 use App\Models\User;
+use App\Helper\Helper;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Yajra\DataTables\DataTables;
@@ -24,19 +25,15 @@ class UserController extends Controller
             $data = User::where('role', 'user')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('name', function ($data) {
-                    $name = $data->name;
-                    return $name;
-                })
-                ->addColumn('username', function ($data) {
-                    $username = $data->username;
-                    return $username;
-                })
                 ->addColumn('status', function ($data) {
                     $status = $data->status;
                     return '<div class="form-check form-switch mb-2">
                                 <input class="form-check-input" onclick="showStatusChangeAlert(' . $data->id . ')" type="checkbox" ' . ($status == 'active' ? 'checked' : '') . '>
                             </div>';
+
+                })
+                ->addColumn('bulk_check', function ($data) {
+                    return Helper::tableCheckbox($data->id);
 
                 })
                 ->addColumn('action', function ($data) {
@@ -50,7 +47,7 @@ class UserController extends Controller
                          </button>
                      </div>';
                 })
-                ->rawColumns(['name', 'username', 'status', 'action'])
+                ->rawColumns(['bulk_check', 'status', 'action'])
                 ->make(true);
         }
 

@@ -62,6 +62,35 @@
     .main-menu .nav-item a.active {
         text-decoration: none !important;
     }
+
+    .dropify-wrapper .dropify-message p {
+        font-size: 23px;
+    }
+
+    .card-body {
+        padding: 24px 22px;
+    }
+
+    .card .card-title {
+        font-weight: 600;
+        font-size: 23px;
+    }
+
+    .dt-length {
+        margin-bottom: 15px;
+    }
+
+    .dt-length label {
+        text-transform: capitalize;
+    }
+
+    input#select_all {
+        padding: 6px;
+        margin-left: 1px;
+    }
+    .select_data{
+        margin-left: 1px;
+    }
 </style>
 
 
