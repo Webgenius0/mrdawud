@@ -79,6 +79,7 @@ class UserAuthController extends Controller
             DB::commit();
             return $this->success([
                 'user' => $user->only('id', 'username', 'email', 'language', 'phone'),
+                'token' => $this->respondWithToken(JWTAuth::fromUser($user)),
             ], 'Check your email to verify your account', 200);
 
         } catch (\Exception $e) {
