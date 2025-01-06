@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helper\Helper;
 use App\Models\Category;
 use App\Traits\apiresponse;
+use Exception;
 
 class CategoryController extends Controller
 {
@@ -16,6 +17,7 @@ class CategoryController extends Controller
 
     public function addCategory(Request $request)
     {
+    return response($request->all());
         // Validate the incoming data
         $validator = validator::make($request->all(), [
             'title' => 'required|string',
@@ -32,14 +34,15 @@ class CategoryController extends Controller
         DB::beginTransaction();
 
         try {
-            
+            dd($request->all());
             $title = $request->title;
             $slug = $request->slug;
             $location = $request->location;
             $image = $request->file('image');
 
-            $user = auth()->user();
+           // $existingCategory = Category::where('title', $title)->first();
 
+            
             $imagePath = Helper::fileUpload($image, 'categories', $title);
 
             $category = new Category();
@@ -55,7 +58,7 @@ class CategoryController extends Controller
                 'message' => 'Category added successfully!',
                 'category' => $category
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
             return $this->error('An error occurred while adding the category.', $e->getMessage());
         }

@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AgentMiddleware
+class InstractorMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,9 +15,6 @@ class AgentMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(auth()->user()->role !='agent'){
-            return redirect('/')->with('t-error',' You are not authorized to access this page');
-        }
         return $next($request);
     }
 }

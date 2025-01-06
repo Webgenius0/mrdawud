@@ -10,6 +10,7 @@ use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
 use App\Http\Controllers\API\RemainderController;
 
+
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
     Route::post('register', 'register');
@@ -31,7 +32,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('me', [UserAuthController::class, 'me']);
     Route::post('refresh', [UserAuthController::class, 'refresh']);
 
-    
+
     Route::delete('/delete/user', [UserController::class, 'deleteUser']);
 
     Route::post('change-password', [UserController::class, 'changePassword']);
@@ -65,7 +66,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::controller(DuaController::class)->group(function () {
         Route::get('/dua-subcategories/{cat_id}', 'DuaSubCategories');
         Route::get('/subcategories/{subcat_id}', 'SubCatGetDua');
-
     });
 
     // Firebase Token Module
@@ -88,13 +88,10 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     });
 
 
-    Route::middleware(['auth:api', 'admin'])->group(function () {
+     Route::controller(CategoryController::class)->group(function () {
 
-        Route::post('/category', [CategoryController::class, 'addCategory']);
-        //Route::post('/admin/products', [CategoryController::class, 'store']);
-        
-    });
+        Route::post('/category', 'addCategory');
 
-   
+     });
+   // Route::post('/category', [CategoryController::class, 'uploadVideo']);
 });
-
