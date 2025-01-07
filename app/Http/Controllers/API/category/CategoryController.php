@@ -15,52 +15,18 @@ class CategoryController extends Controller
 {
     use apiresponse;
 
-    public function addCategory(Request $request)
+    public function categoryShow()
     {
-    return response($request->all());
-        // Validate the incoming data
-        $validator = validator::make($request->all(), [
-            'title' => 'required|string',
-            'slug' => 'required|string',
-            'location' => 'required|string',
-            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
-
-        // If validation fails, return error
-        if ($validator->fails()) {
-            return $this->error('Validation Error.', $validator->errors());
-        }
-
-        DB::beginTransaction();
-
+       
         try {
-            dd($request->all());
-            $title = $request->title;
-            $slug = $request->slug;
-            $location = $request->location;
-            $image = $request->file('image');
-
-           // $existingCategory = Category::where('title', $title)->first();
-
-            
-            $imagePath = Helper::fileUpload($image, 'categories', $title);
-
-            $category = new Category();
-            $category->title = $title;
-            $category->slug = $slug;
-            $category->location = $location;
-            $category->image = $imagePath;
-            $category->save();
-
-            DB::commit();
-
+            $category = Category::all();
             return $this->success([
-                'message' => 'Category added successfully!',
-                'category' => $category
+                'category'=>$category,
+                'message'=>'Category has been fetched successfully'
             ], 200);
         } catch (Exception $e) {
-            DB::rollback();
-            return $this->error('An error occurred while adding the category.', $e->getMessage());
-        }
+            
+            return $this->error('Something went wrong', 500);
+        }      
     }
 }

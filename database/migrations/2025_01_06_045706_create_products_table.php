@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->float('price',10,2);
-            $table->string('image');
+            $table->string('image')->nullable();
             $table->integer('stock');
             $table->enum('status', ['active', 'inactive'])->default('active');
 

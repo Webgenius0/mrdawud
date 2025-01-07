@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Web\backend;
+
 use Exception;
 use App\Helper\Helper;
 use App\Http\Controllers\Controller;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
+
 
 class ProductController extends Controller
 {
@@ -111,31 +113,42 @@ class ProductController extends Controller
      */
 
 
-     public function update(Request $request,Product $product)
-     {
-        //dd($request->all());
+    public function update(ProductRequest $request, Product $product)
+    {
         try {
-            
-            $product->title=$request->validated('title');
-            $product->category_id = $request->validated('category_id');
-            $product->slug=Str::slug($request->validated('title'));
-            $product->price=$request->validated('price');
-            $product->stock=$request->validated('stock');
-            if($request->hasFile('image'))
-            {
-             if($product->image && file_exists(public_path($product->image))){
+            // Check if the product exists before proceeding
+            // This is not usually needed as Laravel's route model binding automatically handles it.
+            if (!$product) {
+                return redirect()->route('admin.product.index')->with('t-error', 'Product not found');
+            }
+
+            // Update the product attributes
+            $product->title = $request->validated('title');
+            $product->slug = Str::slug($request->validated('title'));
+            $product->price = $request->validated('price');
+            $product->stock = $request->validated('stock');
+
+            // Handle image file upload if an image is provided
+            if ($request->hasFile('image')) {
+                if ($product->image && file_exists(public_path($product->image))) {
+                    // Delete the old image file if it exists
                     File::delete(public_path($product->image));
-             }
+                }
+                // Upload new image
                 $url = Helper::fileUpload($request->file('image'), 'product', $request->validated('title') . "-" . time());
                 $product->image = $url;
             }
-       
-            $product->save();
-            return redirect()->route('admin.product.index')->with('t-success','Product updated successfully');
+
+            // Save the updated product to the database
+            $product->update();
+
+            // Redirect back with success message
+            return redirect()->route('admin.product.index')->with('t-success', 'Product updated successfully');
         } catch (Exception $e) {
-            return redirect()->route('admin.product.index')->with('t-error','Something went wrong');
+            // Handle any errors and show an error message
+            return redirect()->route('admin.product.index')->with('t-error', 'Something went wrong');
         }
-     }
+    }
 
     /**
      * Delete the specified resource from storage.

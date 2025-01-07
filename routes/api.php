@@ -90,7 +90,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
 
      Route::controller(CategoryController::class)->group(function () {
 
-        Route::post('/category', 'addCategory');
+        Route::get('/category', 'categoryShow');
 
      });
    // Route::post('/category', [CategoryController::class, 'uploadVideo']);

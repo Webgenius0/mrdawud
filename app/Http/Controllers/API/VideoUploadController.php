@@ -18,7 +18,7 @@ class VideoUploadController extends Controller
     {
         // Validate the incoming request
         $validator = Validator::make($request->all(), [
-            'video' => 'required|mimes:png|max:20000',
+            'video' => 'required|mimes:mp4,avi,mov,mkv|max:20000',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
         ]);

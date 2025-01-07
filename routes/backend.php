@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\backend\CategoryController;
 use App\Http\Controllers\Web\backend\ProductController;
 use App\Http\Controllers\Web\backend\settings\DynamicPagesController;
 use App\Http\Controllers\Web\backend\settings\ProfileSettingController;
+use App\Models\Product;
 
 Route::middleware(['auth'])->group(function () {
     Route::controller(SettingController::class)->group(function () {
@@ -67,7 +68,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', 'create')->name('create');
         Route::post('/store', 'store')->name('store');
         Route::get('/edit/{product}', 'edit')->name('edit');
-        Route::post('/update', 'update')->name('update');
+        Route::put('/update/', 'update')->name('update');
         Route::delete('/destroy/{product}', 'destroy')->name('destroy');
         Route::get('/status/{id}', 'status')->name('status');
         Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');

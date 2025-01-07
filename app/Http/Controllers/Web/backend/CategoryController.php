@@ -105,6 +105,7 @@ class CategoryController extends Controller
     public function update(CategoryRequest $request, Category $category)
     {
         try {
+            
             $category->title = $request->validated('title');
             $category->slug = Str::slug($request->validated('title'));
             if ($request->hasFile('image')) {
