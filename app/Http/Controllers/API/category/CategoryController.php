@@ -19,13 +19,13 @@ class CategoryController extends Controller
     {
        
         try {
-            $category = Category::all();
+            $category = Category::where('status','active')->select('id','title','image','location')->get();
             return $this->success([
                 'category'=>$category,
                 'message'=>'Category has been fetched successfully'
             ], 200);
         } catch (Exception $e) {
-            
+
             return $this->error('Something went wrong', 500);
         }      
     }
