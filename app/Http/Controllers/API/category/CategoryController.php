@@ -15,6 +15,7 @@ class CategoryController extends Controller
 {
     use apiresponse;
 
+    
     public function categoryShow()
     {
        

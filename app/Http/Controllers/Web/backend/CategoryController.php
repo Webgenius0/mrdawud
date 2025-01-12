@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
+use Exception;
 
 class CategoryController extends Controller
 {
@@ -104,6 +105,7 @@ class CategoryController extends Controller
      */
     public function update(CategoryRequest $request, Category $category)
     {
+      
         try {
             
             $category->title = $request->validated('title');
@@ -118,7 +120,7 @@ class CategoryController extends Controller
             $category->location = $request->validated('location');
             $category->save();
             return redirect()->route('admin.category.index')->with('t-success', 'Category updated successfully');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return redirect()->route('admin.category.index')->with('t-error', 'Something went wrong');
         }
     }

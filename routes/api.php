@@ -97,7 +97,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
 
      Route::controller(ProductController::class)->group(function () {
 
-        Route::get('/product', 'shoProduct');
+        Route::get('/show-product', 'showProduct');
 
      });
   

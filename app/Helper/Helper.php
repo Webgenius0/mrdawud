@@ -28,6 +28,7 @@ class Helper
             </div>';
     }
 
+
     //video upload
     public static function videoUpload($file, $folder, $name)
     {

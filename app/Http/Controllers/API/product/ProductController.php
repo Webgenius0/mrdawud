@@ -11,7 +11,10 @@ use Exception;
 class ProductController extends Controller
 {
     use apiresponse;
-    public function shoProduct()
+
+
+     
+    public function showProduct()
     {
         try {
             $product= Product::where('status','active')->select('id','title','slug','price','stock','image')->get();
@@ -24,5 +27,7 @@ class ProductController extends Controller
             return $this->error('Something went wrong', 500);
         }
     }
+    
+
 
 }

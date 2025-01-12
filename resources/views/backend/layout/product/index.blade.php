@@ -30,7 +30,7 @@
                                 </th>
                                 <th>Title</th>
                                 <th>Image</th>
-                               
+                               <th>Category</th>
                                 <th>Price</th>
                                
                                 <th>Status</th>
@@ -109,6 +109,14 @@
                                 orderable: false,
                                 searchable: false
                             },
+
+                            {
+                                data: 'category_title',
+                                name: 'category_title',
+                                orderable: false,
+                                searchable: false
+                            },
+
                              {
                                 data: 'price',
                                 name: 'price',
@@ -220,7 +228,7 @@
 
             // Status Change
             function statusChange(id) {
-                let url = '{{ route('user.status', ':id') }}';
+                let url = '{{ route('admin.product.status', ':id') }}';
                 $.ajax({
                     type: "GET",
                     url: url.replace(':id', id),
@@ -238,7 +246,7 @@
                         }
                     },
                     error: function(error) {
-                        // location.reload();
+                       
                     }
                 })
             }
