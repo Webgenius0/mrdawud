@@ -25,6 +25,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
         'username',
         'email',
         'password',
@@ -81,5 +82,46 @@ class User extends Authenticatable implements JWTSubject
     public function images()
     {
         return $this->hasMany(UserImages::class);
+    }
+
+
+    // Custom logic for allowing chat creation
+    public function canCreateChats(): bool
+    {
+        return $this->hasVerifiedEmail();
+    }
+
+     /**
+    * Returns the URL for the user's cover image (avatar).
+    * Adjust the 'avatar_url' field to your database setup.
+    */
+    public function getCoverUrlAttribute(): ?string
+    {
+      return $this->avatar ?? null;
+    }
+
+    /**
+    * Returns the display name for the user.
+    * Modify this to use your preferred name field.
+    */
+    public function getDisplayNameAttribute(): ?string
+    {
+      return ucfirst($this->name) ?? 'Anonymous';
+    }
+
+    /**
+    * Search for users when creating a new chat or adding members to a group.
+    * Customize the search logic to limit results, such as restricting to friends or eligible users only.
+    */
+    public function searchChatables(string $query): ?Collection
+    {
+     $searchableFields = ['name'];
+     return User::where(function ($queryBuilder) use ($searchableFields, $query) {
+        foreach ($searchableFields as $field) {
+                $queryBuilder->orWhere($field, 'LIKE', '%'.$query.'%');
+        }
+      })
+        ->limit(20)
+        ->get();
     }
 }

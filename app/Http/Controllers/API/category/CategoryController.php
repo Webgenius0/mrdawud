@@ -17,7 +17,6 @@ class CategoryController extends Controller
 
     public function categoryShow()
     {
-       
         try {
             $category = Category::all();
             return $this->success([
