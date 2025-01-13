@@ -10,7 +10,7 @@ use App\Http\Controllers\API\UserAuthController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
 use App\Http\Controllers\API\RemainderController;
-
+use Twilio\Rest\Video;
 
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -82,12 +82,16 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     //Videp Upload
     Route::controller(VideoUploadController::class)->group(function () {
         Route::post('video-upload', 'uploadVideo');
+        Route::get('/show-video', 'showVideo');
+        Route::post('/edit-video/{id}', 'editVideo');
+        Route::post('/delete-video/{id}', 'deleteVideo');
     });
     //Reminder
     Route::controller(RemainderController::class)->group(function () {
         Route::post('reminder-add', 'remainder');
         Route::get('remainder-list', 'remainderList');
         Route::post('remainder-edit/{id}', 'remainderEdit');
+        Route::post('remainder-delete/{id}', 'remainderDelete');
     });
 
 
@@ -102,5 +106,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::get('/show-product', 'showProduct');
 
      });
-  
+
+   
 });

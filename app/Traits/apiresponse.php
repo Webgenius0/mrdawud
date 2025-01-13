@@ -9,6 +9,7 @@ trait apiresponse
 {
     public function success($data, $message = null, $code = 200)
     {
+        
         return response()->json([
             'success' => true,
             'message' => $message,

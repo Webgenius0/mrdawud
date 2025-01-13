@@ -15,6 +15,9 @@ class InstractorMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (auth()->user()->role !== 'instructor') {
+            return redirect()->route('/');
+        }
         return $next($request);
     }
 }
