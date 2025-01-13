@@ -82,4 +82,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(UserImages::class);
     }
+
+    public function socialMedia()
+    {
+        return $this->hasMany(SocialMedia::class);
+    }
 }
