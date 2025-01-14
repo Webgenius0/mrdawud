@@ -106,16 +106,16 @@ class User extends Authenticatable implements JWTSubject
     */
     public function getDisplayNameAttribute(): ?string
     {
-      return ucfirst($this->name) ?? 'Anonymous';
+      return ucfirst($this->username) ?? 'Anonymous';
     }
 
     /**
     * Search for users when creating a new chat or adding members to a group.
     * Customize the search logic to limit results, such as restricting to friends or eligible users only.
     */
-    public function searchChatables(string $query): ?Collection
+    public function searchChatables(string $query)
     {
-     $searchableFields = ['name'];
+     $searchableFields = ['username', 'email'];
      return User::where(function ($queryBuilder) use ($searchableFields, $query) {
         foreach ($searchableFields as $field) {
                 $queryBuilder->orWhere($field, 'LIKE', '%'.$query.'%');
