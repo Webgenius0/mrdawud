@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Helper\Helper;
-use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Helper\Helper;
 use App\Traits\apiresponse;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Namu\WireChat\Events\MessageCreated;
-use Namu\WireChat\Events\NotifyParticipant;
+use App\Http\Controllers\Controller;
 use Namu\WireChat\Models\Participant;
+use Namu\WireChat\Events\MessageCreated;
+use Illuminate\Support\Facades\Validator;
+use Namu\WireChat\Events\NotifyParticipant;
 
 class MessagingController extends Controller
 {
@@ -59,14 +60,14 @@ class MessagingController extends Controller
             if (!$recipient) {
                 return $this->error([], 'Recipient not found', 404);
             }
-
+            $sendMessage = $request->message;
             if($request->hasFile('file') && $request->file('file')->isValid() && $request->message == null){ 
                 $rand = Str::random(6);
-                $url = Helper::fileUpload()
+                $sendMessage= Helper::fileUpload($request->file('file'), 'message', "User-" . $auth->username . "-" . $rand . "-" . time());
             }
 
             // Use the sendMessageTo method from the Chatable trait
-            $message = $auth->sendMessageTo($recipient, $request->message);
+            $message = $auth->sendMessageTo($recipient, $sendMessage);
 
             // Broadcast events after successful message creation
             broadcast(new MessageCreated($message));
