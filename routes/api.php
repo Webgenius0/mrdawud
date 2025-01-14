@@ -3,7 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\backend\Auth;
+<<<<<<< HEAD
 use App\Http\Controllers\API\product\ProductController;
+=======
+>>>>>>> 501e29a (working on chatting)
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
 use App\Http\Controllers\API\MessagingController;
@@ -11,8 +14,11 @@ use App\Http\Controllers\API\RemainderController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
 use App\Http\Controllers\API\category\CategoryController;
+<<<<<<< HEAD
 
 use Twilio\Rest\Video;
+=======
+>>>>>>> 501e29a (working on chatting)
 
 
 Route::controller(UserAuthController::class)->group(function () {
@@ -224,3 +230,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
        Route::get('get-conversations','getConversations');
        Route::post('send-message','sendMessage');
    });
+<<<<<<< HEAD
+=======
+});
+>>>>>>> 501e29a (working on chatting)
