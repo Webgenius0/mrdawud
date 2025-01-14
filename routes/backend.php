@@ -8,8 +8,10 @@ use App\Http\Controllers\Web\backend\UserController;
 use App\Http\Controllers\Web\backend\SettingController;
 use App\Http\Controllers\Web\backend\admin\FAQController;
 use App\Http\Controllers\Web\backend\CategoryController;
+use App\Http\Controllers\Web\backend\ProductController;
 use App\Http\Controllers\Web\backend\settings\DynamicPagesController;
 use App\Http\Controllers\Web\backend\settings\ProfileSettingController;
+use App\Models\Product;
 
 Route::middleware(['auth'])->group(function () {
     Route::controller(SettingController::class)->group(function () {
@@ -54,8 +56,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', 'create')->name('create');
         Route::post('/store', 'store')->name('store');
         Route::get('/edit/{category}', 'edit')->name('edit');
-        Route::post('/update', 'update')->name('update');
+        Route::post('/update/{category}', 'update')->name('update');
         Route::delete('/destroy/{category}', 'destroy')->name('destroy');
+        Route::get('/status/{id}', 'status')->name('status');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
+    });
+
+    //product Route
+    Route::prefix('product')->controller(ProductController::class)->as('admin.product.')->group(function () {
+        Route::get('/list', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/edit/{product}', 'edit')->name('edit');
+        Route::put('/update/{product}', 'update')->name('update');
+        Route::delete('/destroy/{product}', 'destroy')->name('destroy');
         Route::get('/status/{id}', 'status')->name('status');
         Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
     });

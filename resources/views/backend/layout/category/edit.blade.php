@@ -17,10 +17,11 @@
 
             </div>
             <div class="card-body">
-                <form class="form" method="POST" action="{{ route('admin.category.update') }}" method="POST"
+                <form class="form" method="POST" action="{{ route('admin.category.update', $category->id) }}" method="POST"
                     enctype="multipart/form-data">
                     <input type="hidden" name="id" value="{{ $category->id }}">
                     @csrf
+                    
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <div class="form-group">

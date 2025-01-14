@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
+use Exception;
 class RoleController extends Controller
 {
     /**
@@ -101,7 +101,7 @@ class RoleController extends Controller
                 'success' => true,
                 'message' => 'Role deleted successfully!',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while deleting the role. Please try again.',

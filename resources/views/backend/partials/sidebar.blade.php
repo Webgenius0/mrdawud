@@ -2,7 +2,7 @@
     <div class="navbar-header">
         <ul class="nav navbar-nav flex-row">
             <li class="nav-item mr-auto">
-                <a class="navbar-brand" href="../../../html/ltr/vertical-menu-template/index.html">
+                <a class="navbar-brand" href="{{ route('dashboard') }}">
                     <span class="brand-logo">
                         <svg viewbox="0 0 139 95" version="1.1" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" height="24">
@@ -78,9 +78,19 @@
             </li>
             <li class="nav-item {{ request()->routeIs('admin.category.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('admin.category.index') }}">
-                    <i data-feather="grid"></i>
+                    <i data-feather="tag"></i>
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
                         Categories
+                    </span>
+                </a>
+            </li>
+
+
+              <li class="nav-item {{ request()->routeIs('admin.product.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('admin.product.index') }}">
+                    <i data-feather="box"></i>
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        Product
                     </span>
                 </a>
             </li>
@@ -102,7 +112,7 @@
             </li> --}}
             <li class="nav-item {{ request()->routeIs('user.list') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('user.list') }}">
-                    <i data-feather="grid"></i>
+                    <i data-feather="users"></i>
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
                         Users
                     </span>
@@ -110,7 +120,8 @@
             </li>
             <li class="nav-item {{ request()->routeIs('faq.index') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('faq.index') }}">
-                    <i data-feather="grid"></i>
+                <i data-feather="help-circle"></i>
+
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
                         FAQ
                     </span>
