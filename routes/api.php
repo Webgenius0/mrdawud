@@ -3,13 +3,14 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\backend\Auth;
-use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\product\ProductController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
+use App\Http\Controllers\API\MessagingController;
+use App\Http\Controllers\API\RemainderController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
-use App\Http\Controllers\API\RemainderController;
+use App\Http\Controllers\API\category\CategoryController;
 
 use Twilio\Rest\Video;
 
@@ -217,4 +218,9 @@ Route::group(['middleware' => ['jwt.verify']], function () {
      });
 
    
-});
+   // Route::post('/category', [CategoryController::class, 'uploadVideo']);
+
+   Route::controller(MessagingController::class)->group(function () {
+       Route::get('get-conversations','getConversations');
+       Route::post('send-message','sendMessage');
+   });
