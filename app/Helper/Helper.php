@@ -19,6 +19,18 @@ class Helper
         $path = 'uploads/' . $folder . '/' . $imageName;
         return $path;
     }
+    //file delete
+    public static function fileDelete($filePath)
+    {
+        $fullPath = public_path($filePath); 
+
+        if (file_exists($fullPath)) {
+           
+            unlink($fullPath);
+            return true; 
+        }
+        return false;
+    }
 //tableCheckbox
     public static function tableCheckbox($row_id)
     {

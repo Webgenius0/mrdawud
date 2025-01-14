@@ -208,6 +208,8 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::controller(DocumentController::class)->group(function () {
         Route::post('/document', 'store');
         Route::get('/show-document', 'show');
+        Route::post('/edit-document/{id}', 'edit');
+        Route::post('/delete-document/{id}', 'delete');
     });
 
     //category
