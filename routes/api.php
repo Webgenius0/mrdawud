@@ -99,5 +99,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
    Route::controller(MessagingController::class)->group(function () {
        Route::get('get-conversations','getConversations');
        Route::post('send-message','sendMessage');
+       Route::get('users/conversation/{user}','getUserConversation');
    });
 });

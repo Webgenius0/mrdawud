@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helper\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traits\apiresponse;
@@ -23,12 +24,13 @@ class MessagingController extends Controller
     public function getConversations()
     {
         $user = auth()->user();
-        $conversations = $user->conversations()->with([ 'participants','lastMessage'])->get();
+        $conversations = $user->conversations()->with(['participants' => function ($query) {
+            $query->where('participantable_id', '!=', auth()->id());
+        }, 'lastMessage'])->get();
         return $this->success([
             'conversations' => $conversations,
         ], "Conversations fetched successfully", 200);
     }
-
     /**
      * Send Message
      * @param Request $request
@@ -38,48 +40,63 @@ class MessagingController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'to_user_id' => 'required|exists:users,id',
-            'message' => 'required|string',
+            'message' => 'required_without:file|string',
+            'file' => 'required_without:message|file|mimes:png,jpg,jpeg,webp|max:2048',
         ]);
 
         if ($validation->fails()) {
-            return $this->error([], $validation->errors(), 500);
+            return $this->error([], $validation->errors(), 422); // Use 422 for validation errors
         }
 
         DB::beginTransaction();
         try {
-            $otherUser = User::where('id', $request->to_user_id)
-            // ->where('role', 'instructor')// For Production
-            ->where('id', '!=', auth()->id)
-            ->where('status', 'active')
-            ->first();
-
-            if (!$otherUser) {
-                return $this->error([], 'User not found', 404);
-            }
             $auth = auth()->user();
-            $conversation = $auth->conversations()->first();
-            if (!$conversation) {
-                $conversation = $auth->createConversationWith($otherUser);
+            $recipient = User::where('id', $request->to_user_id)
+                ->where('id', '!=', $auth->id) // Prevent sending messages to self
+                ->where('status', 'active') // Ensure user is active
+                ->first();
+
+            if (!$recipient) {
+                return $this->error([], 'Recipient not found', 404);
             }
-            $message = $auth->sendMessageTo($conversation, $request->message);
 
-            // Retrieve or create a Participant instance
-            $participant = Participant::firstOrCreate([
-                'participantable_id' => $otherUser->id,
-                'participantable_type' => get_class($otherUser),
-                'conversation_id' => $conversation->id,
-            ]);
+            if($request->hasFile('file') && $request->file('file')->isValid() && $request->message == null){ 
+                $rand = Str::random(6);
+                $url = Helper::fileUpload()
+            }
 
+            // Use the sendMessageTo method from the Chatable trait
+            $message = $auth->sendMessageTo($recipient, $request->message);
+
+            // Broadcast events after successful message creation
             broadcast(new MessageCreated($message));
-            broadcast(new NotifyParticipant($participant, $message));
+            broadcast(new NotifyParticipant($message->conversation->participant($recipient), $message));
+
             DB::commit();
 
-            return $this->success([], "Message sent successfully", 200);
+            return $this->success(['message' => $message], "Message sent successfully", 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->error([], $e->getMessage(), 500);
         }
-        return $this->success([], "Message sent successfully", 200);
     }
+
+    /**
+     * Get users Conversation
+     * @param User $user
+     * @return \Illuminate\Http\Response
+     */
+    public function getUserConversation(User $user)
+    {
+        $otherUser = User::findOrFail($user->id);
+        $con = $otherUser->conversations()->with(['participants' => function ($query) {
+            $query->where('participantable_id', auth()->id());
+        }, 'messages'])->first();
+
+        return $this->success([
+            'conversations' => $con,
+        ], "Conversations fetched successfully", 200);
+    }
+
 }
