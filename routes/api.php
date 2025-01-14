@@ -10,6 +10,7 @@ use App\Http\Controllers\API\UserAuthController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
 use App\Http\Controllers\API\RemainderController;
+use App\Http\Controllers\API\instructor\DocumentController;
 
 use Twilio\Rest\Video;
 
@@ -162,20 +163,20 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post("firebase/token/get", [FirebaseTokenController::class, "getToken"]);
     Route::post("firebase/token/detele", [FirebaseTokenController::class, "deleteToken"]);
 
-    //social media
+    /* //social media
     Route::controller(SocialmediaController::class)->group(function () {
         Route::post('add-social-media', 'addSocialMedia');
     });
 
-    //Videp Upload
+    //Vide0 Upload
     Route::controller(VideoUploadController::class)->group(function () {
         Route::post('video-upload', 'uploadVideo');
     });
     //Reminder
     Route::controller(RemainderController::class)->group(function () {
         Route::post('reminder-add', 'remainder');
-    });
-});
+    }); */
+ 
 
     // // Firebase Token Module
     // Route::post("firebase/token/add", [FirebaseTokenController::class, "store"]);
@@ -203,18 +204,22 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('remainder-delete/{id}', 'remainderDelete');
     });
 
+    // Documents
+    Route::controller(DocumentController::class)->group(function () {
+        Route::post('/document', 'store');
+        Route::get('/show-document', 'show');
+    });
 
+    //category
      Route::controller(CategoryController::class)->group(function () {
 
         Route::get('/category', 'categoryShow');
 
      });
-
+     //product
      Route::controller(ProductController::class)->group(function () {
 
         Route::get('/show-product', 'showProduct');
 
-     });
-
-   
+    });
 });
