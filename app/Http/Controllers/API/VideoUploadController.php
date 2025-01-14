@@ -191,6 +191,6 @@ public function deleteVideo($id)
         DB::rollBack();
         return response()->json(['message' => 'An error occurred while deleting the video.'], 400);
     }       
-    
 }
+
 }
