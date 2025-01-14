@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class UserAuthController extends Controller
 {
@@ -90,7 +91,7 @@ class UserAuthController extends Controller
 
     public function login(Request $request)
     {
-        dd($request);
+        //dd($request);
         $credentials = $request->only('email', 'password');
 
         // Attempt to log the user in
@@ -323,7 +324,7 @@ class UserAuthController extends Controller
                 'token_type' => 'bearer',
                 'expires_in' => auth('api')->factory()->getTTL() * 60,
             ], 'Token refreshed successfully', 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->error([], $e->getMessage(), 400);
         }
     }

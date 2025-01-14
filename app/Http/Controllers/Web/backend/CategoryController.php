@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
+use Exception;
 
 class CategoryController extends Controller
 {
@@ -32,11 +33,9 @@ class CategoryController extends Controller
                     return '<div class="form-check form-switch mb-2">
                                 <input class="form-check-input" onclick="showStatusChangeAlert(' . $data->id . ')" type="checkbox" ' . ($status == 'active' ? 'checked' : '') . '>
                             </div>';
-
                 })
                 ->addColumn('bulk_check', function ($data) {
                     return Helper::tableCheckbox($data->id);
-
                 })
                 ->addColumn('action', function ($data) {
                     $viewRoute = route('admin.category.edit', ['category' => $data->id]);
@@ -73,18 +72,18 @@ class CategoryController extends Controller
     public function store(CategoryRequest $request)
     {
         try {
-        $category = new Category();
-        $category->title = $request->validated('title');
-        $category->slug = Str::slug($request->validated('title'));
+            $category = new Category();
+            $category->title = $request->validated('title');
+            $category->slug = Str::slug($request->validated('title'));
 
-        if ($request->hasFile('image')) {
-            $url = Helper::fileUpload($request->file('image'), 'category', $request->validated('title') . "-" . time());
-            $category->image = $url;
-        }
+            if ($request->hasFile('image')) {
+                $url = Helper::fileUpload($request->file('image'), 'category', $request->validated('title') . "-" . time());
+                $category->image = $url;
+            }
 
-        $category->location = $request->validated('location');
-        $category->save();
-        return redirect()->route('admin.category.index')->with('t-success', 'Category created successfully');
+            $category->location = $request->validated('location');
+            $category->save();
+            return redirect()->route('admin.category.index')->with('t-success', 'Category created successfully');
         } catch (\Exception $exception) {
             return redirect()->route('admin.category.index')->with('t-error', 'Something went wrong');
         }
@@ -106,7 +105,9 @@ class CategoryController extends Controller
      */
     public function update(CategoryRequest $request, Category $category)
     {
+      
         try {
+            
             $category->title = $request->validated('title');
             $category->slug = Str::slug($request->validated('title'));
             if ($request->hasFile('image')) {
@@ -119,7 +120,7 @@ class CategoryController extends Controller
             $category->location = $request->validated('location');
             $category->save();
             return redirect()->route('admin.category.index')->with('t-success', 'Category updated successfully');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return redirect()->route('admin.category.index')->with('t-error', 'Something went wrong');
         }
     }
@@ -155,36 +156,35 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function bulkDelete(Request $request){
+    public function bulkDelete(Request $request)
+    {
         if ($request->ajax()) {
-                $result = Category::whereIn('id',$request->ids)->get();
+            $result = Category::whereIn('id', $request->ids)->get();
 
-                if($result){
-                    foreach($result as $value){
-                        if(!empty($value->image)){
-                            if(File::exists(public_path($value->image))){
-                                File::delete(public_path($value->image));
-                            }
+            if ($result) {
+                foreach ($result as $value) {
+                    if (!empty($value->image)) {
+                        if (File::exists(public_path($value->image))) {
+                            File::delete(public_path($value->image));
                         }
                     }
-                    Category::destroy($request->ids);
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Categories deleted successfully',
-                    ]);
-                }else{
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Categories not found',
-                    ]);
                 }
-            }else{
+                Category::destroy($request->ids);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Categories deleted successfully',
+                ]);
+            } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Something went wrong',
+                    'message' => 'Categories not found',
                 ]);
             }
-       
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+            ]);
+        }
     }
-
 }
