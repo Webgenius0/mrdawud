@@ -18,7 +18,6 @@ class CategoryController extends Controller
     
     public function categoryShow()
     {
-       
         try {
             $category = Category::where('status','active')->select('id','title','image','location')->get();
             return $this->success([

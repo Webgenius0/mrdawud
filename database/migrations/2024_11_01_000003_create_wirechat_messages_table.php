@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('type')->default('text');
 
             $table->timestamp('kept_at')->nullable()->comment('filled when a message is kept from disappearing');
+            $table->timestamp('read_at')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

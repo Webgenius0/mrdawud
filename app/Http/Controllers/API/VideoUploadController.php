@@ -35,10 +35,10 @@ class VideoUploadController extends Controller
     }
 
     $user = auth()->user();
-    if(!$user)
-    {
-        return response()->json(['message' => 'User not found.'], 404);
-    }
+  
+   if (!$user || $user->role !== 'instructor') {
+    return response()->json(['message' => 'User not found or user not authorized.'], 404);
+}
     
     DB::beginTransaction();
 
@@ -99,9 +99,9 @@ class VideoUploadController extends Controller
 public function showVideo()
 {
     $user = auth()->user();
-    if(!$user)
+    if(!$user || $user->role !== 'instructor')
     {
-        return response()->json(['message' => 'User not found.'], 404);
+        return response()->json(['message' => 'User not found or user not authorized.'], 404);
     }
    try {
     $videos = VideoUpload::where('user_id', $user->id)->select('id','user_id', 'title', 'description', 'video')->get();
@@ -133,9 +133,9 @@ public function editVideo(Request $request, $id)
     }
 
     $user = auth()->user();
-    if(!$user)
+    if(!$user && $user->role !=='instructor')
     {
-        return response()->json(['message' => 'User not found.'], 404);
+        return response()->json(['message' => 'User not found or user not authorized.'], 404);
     }
 
    try {
@@ -175,7 +175,7 @@ public function deleteVideo($id)
     $user = auth()->user();
     if(!$user)
     {
-        return response()->json(['message' => 'User not found.'], 404);
+        return response()->json(['message' => 'User not found or user not authorized.'], 404);
     }
     try {
         $video = VideoUpload::where('user_id', $user->id)->find($id);

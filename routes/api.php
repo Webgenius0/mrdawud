@@ -3,16 +3,15 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\backend\Auth;
-use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\product\ProductController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
+use App\Http\Controllers\API\MessagingController;
+use App\Http\Controllers\API\RemainderController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
-use App\Http\Controllers\API\RemainderController;
-
-use Twilio\Rest\Video;
-
+use App\Http\Controllers\API\instructor\DocumentController;
+use App\Http\Controllers\API\category\CategoryController;
 
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -162,20 +161,20 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post("firebase/token/get", [FirebaseTokenController::class, "getToken"]);
     Route::post("firebase/token/detele", [FirebaseTokenController::class, "deleteToken"]);
 
-    //social media
+    /* //social media
     Route::controller(SocialmediaController::class)->group(function () {
         Route::post('add-social-media', 'addSocialMedia');
     });
 
-    //Videp Upload
+    //Vide0 Upload
     Route::controller(VideoUploadController::class)->group(function () {
         Route::post('video-upload', 'uploadVideo');
     });
     //Reminder
     Route::controller(RemainderController::class)->group(function () {
         Route::post('reminder-add', 'remainder');
-    });
-});
+    }); */
+ 
 
     // // Firebase Token Module
     // Route::post("firebase/token/add", [FirebaseTokenController::class, "store"]);
@@ -203,13 +202,21 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('remainder-delete/{id}', 'remainderDelete');
     });
 
+    // Documents
+    Route::controller(DocumentController::class)->group(function () {
+        Route::post('/document', 'store');
+        Route::get('/show-document', 'show');
+        Route::post('/edit-document/{id}', 'edit');
+        Route::post('/delete-document/{id}', 'delete');
+    });
 
+    //category
      Route::controller(CategoryController::class)->group(function () {
 
         Route::get('/category', 'categoryShow');
 
      });
-
+     //product
      Route::controller(ProductController::class)->group(function () {
 
         Route::get('/show-product', 'showProduct');
@@ -217,4 +224,10 @@ Route::group(['middleware' => ['jwt.verify']], function () {
      });
 
    
+   // Route::post('/category', [CategoryController::class, 'uploadVideo']);
+
+   Route::controller(MessagingController::class)->group(function () {
+       Route::get('get-conversations','getConversations');
+       Route::post('send-message','sendMessage');
+   });
 });
