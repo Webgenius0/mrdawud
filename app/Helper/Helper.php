@@ -19,6 +19,18 @@ class Helper
         $path = 'uploads/' . $folder . '/' . $imageName;
         return $path;
     }
+    //file delete
+    public static function fileDelete($filePath)
+    {
+        $fullPath = public_path($filePath); 
+
+        if (file_exists($fullPath)) {
+           
+            unlink($fullPath);
+            return true; 
+        }
+        return false;
+    }
 //tableCheckbox
     public static function tableCheckbox($row_id)
     {
@@ -27,6 +39,7 @@ class Helper
                 <label class="form-check-label" for="checkbox-' . $row_id . '"></label>
             </div>';
     }
+
 
     //video upload
     public static function videoUpload($file, $folder, $name)
@@ -37,6 +50,7 @@ class Helper
         return $path;
     }
 
+
     // audio upload
     public static function audioUpload($file, $folder, $name)
     {
@@ -45,5 +59,20 @@ class Helper
         $path = 'uploads/' . $folder . '/' . $audioName;
         return $path;
     }
+
+    //video delete
+
+    public static function videoDelete($filePath)
+    {
+        $fullPath = public_path($filePath); 
+    
+        if (file_exists($fullPath)) {
+           
+            unlink($fullPath);
+            return true; 
+        }
+        return false;
+    }
+    
 
 }

@@ -56,7 +56,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', 'create')->name('create');
         Route::post('/store', 'store')->name('store');
         Route::get('/edit/{category}', 'edit')->name('edit');
-        Route::post('/update', 'update')->name('update');
+        Route::post('/update/{category}', 'update')->name('update');
         Route::delete('/destroy/{category}', 'destroy')->name('destroy');
         Route::get('/status/{id}', 'status')->name('status');
         Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
@@ -68,7 +68,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', 'create')->name('create');
         Route::post('/store', 'store')->name('store');
         Route::get('/edit/{product}', 'edit')->name('edit');
-        Route::put('/update/', 'update')->name('update');
+        Route::put('/update/{product}', 'update')->name('update');
         Route::delete('/destroy/{product}', 'destroy')->name('destroy');
         Route::get('/status/{id}', 'status')->name('status');
         Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');

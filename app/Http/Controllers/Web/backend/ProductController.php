@@ -20,7 +20,7 @@ class ProductController extends Controller
     {
         if($request->ajax())
         {
-            $data=Product::latest();
+            $data=Product::with('category')->latest();
             return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('image',function($data){
@@ -33,6 +33,11 @@ class ProductController extends Controller
                                 <input class="form-check-input" onclick="showStatusChangeAlert(' . $data->id . ')" type="checkbox" ' . ($status == 'active' ? 'checked' : '') . '>
                             </div>';
                 })
+
+                ->addColumn('category_title', function ($data){
+                    return $data->category ? $data->category->title : 'N/A';
+                })
+
                 ->addColumn('bulk_check', function ($data) {
                     return Helper::tableCheckbox($data->id);
                 })
@@ -113,43 +118,44 @@ class ProductController extends Controller
      */
 
 
-    public function update(ProductRequest $request, Product $product)
-    {
-        try {
-            // Check if the product exists before proceeding
-            // This is not usually needed as Laravel's route model binding automatically handles it.
-            if (!$product) {
-                return redirect()->route('admin.product.index')->with('t-error', 'Product not found');
+     public function update(ProductRequest $request, Product $product)
+     {
+         try {
+            
+            if(!$product)
+            {
+                return redirect()->route('admin.product.index')->with('t-error','Product not found');
             }
+            $product=Product::find($product->id);
 
-            // Update the product attributes
-            $product->title = $request->validated('title');
-            $product->slug = Str::slug($request->validated('title'));
-            $product->price = $request->validated('price');
-            $product->stock = $request->validated('stock');
-
-            // Handle image file upload if an image is provided
-            if ($request->hasFile('image')) {
-                if ($product->image && file_exists(public_path($product->image))) {
-                    // Delete the old image file if it exists
-                    File::delete(public_path($product->image));
-                }
-                // Upload new image
-                $url = Helper::fileUpload($request->file('image'), 'product', $request->validated('title') . "-" . time());
-                $product->image = $url;
-            }
-
-            // Save the updated product to the database
-            $product->update();
-
-            // Redirect back with success message
-            return redirect()->route('admin.product.index')->with('t-success', 'Product updated successfully');
-        } catch (Exception $e) {
-            // Handle any errors and show an error message
-            return redirect()->route('admin.product.index')->with('t-error', 'Something went wrong');
-        }
-    }
-
+             $product->title = $request->validated()['title'];  // Get validated data from the request
+             $product->slug = Str::slug($request->validated()['title']);
+             $product->price = $request->validated()['price'];
+             $product->stock = $request->validated()['stock'];
+             $product->category_id = $request->validated()['category_id'];
+             
+             // Handle image file upload if an image is provided
+             if ($request->hasFile('image')) {
+                 if ($product->image && file_exists(public_path($product->image))) {
+                     
+                     File::delete(public_path($product->image));
+                 }
+               
+                 $url = Helper::fileUpload($request->file('image'), 'product', $request->validated()['title'] . "-" . time());
+                 $product->image = $url;
+             }
+     
+             
+             $product->save();  
+            
+             return redirect()->route('admin.product.index')->with('t-success', 'Product updated successfully');
+         } catch (Exception $e) {
+             
+             dd($e->getMessage());  
+             return redirect()->route('admin.product.index')->with('t-error', 'Something went wrong');
+         }
+     }
+     
     /**
      * Delete the specified resource from storage.
      * @param  Category

@@ -77,6 +77,7 @@ class MessagingController extends Controller
 
             return $this->success(['message' => $message], "Message sent successfully", 200);
 
+
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->error([], $e->getMessage(), 500);
@@ -99,5 +100,4 @@ class MessagingController extends Controller
             'conversations' => $con,
         ], "Conversations fetched successfully", 200);
     }
-
 }
