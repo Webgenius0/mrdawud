@@ -118,6 +118,15 @@
                     </span>
                 </a>
             </li>
+
+            <li class="nav-item {{ request()->routeIs('index') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('index') }}">
+                    <i data-feather="users"></i>
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        Block User
+                    </span>
+                </a>
+            </li>
             <li class="nav-item {{ request()->routeIs('faq.index') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('faq.index') }}">
                 <i data-feather="help-circle"></i>

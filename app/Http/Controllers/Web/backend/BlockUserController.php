@@ -2,27 +2,19 @@
 
 namespace App\Http\Controllers\Web\backend;
 
-use App\Models\User;
-use App\Helper\Helper;
-use Illuminate\Http\Request;
-use App\Services\UserService;
-use Yajra\DataTables\DataTables;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-
-class UserController extends Controller
+use App\Models\BlockUser;
+use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+use App\Helper\Helper;
+use App\Models\User;
+use App\Models\ReportUser;
+class BlockUserController extends Controller
 {
-    public $userServiceObj;
-
-    public function __construct()
-    {
-        $this->userServiceObj = new UserService();
-    }
-
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::where('role', 'user')->latest();
+            $data = BlockUser::where('role', 'user')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('status', function ($data) {
@@ -37,7 +29,7 @@ class UserController extends Controller
 
                 })
                 ->addColumn('action', function ($data) {
-                    $viewRoute = route('show.users', ['id' => $data->id]);
+                    $viewRoute = route('block.user', ['id' => $data->id]);
                     return '<div>
                          <a class="btn btn-sm btn-primary" href="' . $viewRoute . '">
                              <i class="fa-solid fa-eye"></i>
@@ -51,42 +43,14 @@ class UserController extends Controller
                 ->make(true);
         }
 
-        return view('backend.layout.user.index');
+        return view('backend.layout.blockuser.index');
     }
+
 
     public function show($id)
     {
-        $user=User::find($id);
-        return view('backend.layout.user.show',compact('user'));
-    }
-
-    /**
-     * Change the status of the specified resource.
-     *
-     * @param int $id
-     * @return JsonResponse
-     */
-    public function status(int $id): JsonResponse
-    {
-        $data = User::findOrFail($id);
-        if ($data->status == 'active') {
-            $data->status = 'inactive';
-            $data->save();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Unpublished Successfully.',
-                'data' => $data,
-            ]);
-        } else {
-            $data->status = 'active';
-            $data->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Published Successfully.',
-                'data' => $data,
-            ]);
-        }
+        $user=BlockUser::find($id);
+        $report=ReportUser::where('reported_user_id',$user->id)->get();
+        return view('backend.layout.blockuser.show',compact('user','report'));
     }
 }

@@ -18,7 +18,7 @@
         <div class="container-xxl flex-grow-1 container-p-y">
             <div class="row">
                 <!-- User Sidebar -->
-                <div class="col-xl-11 col-lg-11 order-1 order-md-0">
+                <div class="col-xl-4 col-lg-5 order-1 order-md-0">
                     <!-- User Card -->
                     <div class="card mb-6">
                         <div class="card mb-6">
@@ -37,7 +37,7 @@
                                     <ul class="list-unstyled mb-6">
                                         <li class="mb-2">
                                             <span class="h6">Username:</span>
-                                            <span>{{$user->username ?? 'N/A'}}</span>
+                                            <span>{{$user->name ?? 'N/A'}}</span>
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6">Email:</span>
@@ -48,8 +48,8 @@
                                             <span>{{$user->role ?? 'N/A'}}</span>
                                         </li>
                                         <li class="mb-2">
-                                            <span class="h6">Status:</span>
-                                            <span>{{$user->status ?? 'N/A'}}</span>
+                                            <span class="h6">Phone:</span>
+                                            <span>{{$user->phone ?? 'N/A'}}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -57,7 +57,25 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="col-xl-8 col-lg-7 order-0 order-md-1">
+                    <!-- Activity Timeline -->
+                    <div class="card mb-6">
+                        <h5 class="card-header">Account Information</h5>
+                        <div class="card-body pt-1">
+                            <ul class="list-unstyled mb-6">
+                                <li class="mb-2">
+                                    <span class="h6">Request Amount:</span>
+                                    <span>{{$bank_info->amount ?? 'N/A'}}</span>
+                                </li>
+                                <li class="mb-2">
+                                    <span class="h6">Bank Information:</span>
+                                    <span>{{$bank_info->bank_info ?? 'N/A'}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Activity Timeline -->
+                </div>
             </div>
 
         </div>

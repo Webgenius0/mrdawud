@@ -21,53 +21,63 @@ class RemainderController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'audio' => 'required|mimes:mp3|max:20000',
-            'type' => 'required|in:fajar,zuhur,asor,magrib,esha,jumma',
-            'date' => 'required|date',
-            'time' => 'required|string',
+            'audio' => 'required|array',
+            'audio.*' => 'mimes:mp3|max:20000', // Array of audio files
+            'type' => 'required|array',
+            'type.*' => 'in:fajar,zuhur,asor,magrib,esha,jumma', // Array of types
+            'date' => 'required|array',
+            'date.*' => 'date', // Array of dates
+            'time' => 'required|array',
+            'time.*' => 'string', // Array of times
         ]);
-
+        
         if ($validator->fails()) {
             return $this->error('Validation Error.', $validator->errors());
         }
-
+        
         DB::beginTransaction();
         try {
-            $audio = $request->file('audio');
-            $type = $request->type;
-            $date = $request->date;
-            $time = $request->time;
-
+            // Get all inputs as arrays
+            $audioFiles = $request->file('audio');
+            $types = $request->type;
+            $dates = $request->date;
+            $times = $request->time;
+        
             $user = auth()->user();
-            $audioPath = Helper::audioUpload($audio, 'audios', $type);
-
             $responseMessage = [];
-
-            $remainder = new Remainder();
-            $remainder->user_id = $user->id;
-            $remainder->type = $type;
-            $remainder->date = $date;
-            $remainder->time = $time;
-            $remainder->audio = $audioPath;
-            $remainder->save();
-
-            $responseMessage[] = "Remainder for type '{$type}' and date '{$date}' has been added successfully.";
-
-
+        
+            // Loop through the arrays and insert each remainder
+            $reminders = [];
+            for ($i = 0; $i < count($audioFiles); $i++) {
+                // Ensure each field is valid for the current index
+                $audioPath = Helper::audioUpload($audioFiles[$i], 'audios', $types[$i]);
+        
+                // Create a new remainder entry
+                $remainder = new Remainder();
+                $remainder->user_id = $user->id;
+                $remainder->type = $types[$i];
+                $remainder->date = $dates[$i];
+                $remainder->time = $times[$i];
+                $remainder->audio = $audioPath;
+        
+                // Save the remainder
+                $remainder->save();
+                $reminders[] = $remainder;
+        
+                $responseMessage[] = "Remainder for type '{$types[$i]}' and date '{$dates[$i]}' has been added successfully.";
+            }
+        
             DB::commit();
-
+        
             return $this->success([
                 'messages' => $responseMessage,
-
-                'remainder' => $remainder
-
+                'reminders' => $reminders
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
             return $this->error('An error occurred while adding or updating the remainder.', $e->getMessage());
         }
-    }
-
+    }   
 
 
     //show remainder-List  by user

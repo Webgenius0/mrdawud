@@ -11,6 +11,8 @@ use App\Http\Controllers\Web\backend\CategoryController;
 use App\Http\Controllers\Web\backend\ProductController;
 use App\Http\Controllers\Web\backend\settings\DynamicPagesController;
 use App\Http\Controllers\Web\backend\settings\ProfileSettingController;
+use App\Http\Controllers\Web\backend\BlockUserController;
+
 use App\Models\Product;
 
 Route::middleware(['auth'])->group(function () {
@@ -31,8 +33,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(UserController::class)->group(function () {
         Route::get('/users/list', 'index')->name('user.list');
-        Route::get('/view/users/{id}', 'show')->name('show.user');
+        Route::get('/view/users/{id}', 'show')->name('show.users');
         Route::get('/status/users/{id}', 'status')->name('user.status');
+    });
+
+    Route::controller(BlockUserController::class)->group(function () {
+        Route::get('/block-user', 'index')->name('index');
+        Route::get('/block-user/{id}', 'blockUser')->name('block.user');
+        
     });
 
     Route::prefix('permissions')->controller(PremissionController::class)->group(function () {
