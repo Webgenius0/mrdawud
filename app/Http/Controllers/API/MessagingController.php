@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Traits\blockusercheck;
 use Namu\WireChat\Models\Participant;
 use Namu\WireChat\Events\MessageCreated;
 use Illuminate\Support\Facades\Validator;
@@ -17,6 +18,7 @@ use Namu\WireChat\Events\NotifyParticipant;
 class MessagingController extends Controller
 {
     use apiresponse;
+    use blockusercheck;
 
     /**
      * Get Conversations
@@ -51,6 +53,13 @@ class MessagingController extends Controller
 
         DB::beginTransaction();
         try {
+            // Blocked User Check // User blocked check
+            if($this->checkUserBlocked($request->to_user_id)){
+                return $this->error([], "This user is blocked.", 403);
+            }elseif($this->checkBlockedMe($request->to_user_id)){
+                return $this->error([], "This user has blocked you.", 403);
+            }
+
             $auth = auth()->user();
             $recipient = User::where('id', $request->to_user_id)
                 ->where('id', '!=', $auth->id) // Prevent sending messages to self
@@ -97,6 +106,8 @@ class MessagingController extends Controller
 
         return $this->success([
             'conversations' => $con,
+            'youblocked' => $this->checkUserBlocked($user->id),
+            'blockedyou' => $this->checkBlockedMe($user->id),
         ], "Conversations fetched successfully", 200);
     }
 

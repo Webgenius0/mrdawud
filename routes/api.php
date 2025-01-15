@@ -1,16 +1,17 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\backend\Auth;
-use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\API\UserAuthController;
+use App\Http\Controllers\API\BlockUserController;
+use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\MessagingController;
 use App\Http\Controllers\API\RemainderController;
+use App\Http\Controllers\API\ReportUserController;
 use App\Http\Controllers\API\SocialmediaController;
+use App\Http\Controllers\API\UserAuthController;
+use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VideoUploadController;
-use App\Http\Controllers\API\category\CategoryController;
-
+use App\Models\BlockUser;
+use Illuminate\Support\Facades\Route;
 
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -32,7 +33,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('logout', [UserAuthController::class, 'logout']);
     Route::get('me', [UserAuthController::class, 'me']);
     Route::post('refresh', [UserAuthController::class, 'refresh']);
-
 
     Route::delete('/delete/user', [UserController::class, 'deleteUser']);
 
@@ -62,7 +62,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         return $response = ['success' => true, 'message' => 'Notification sent successfully'];
     });
 
-
     // Dua & Dua SubCategory
     Route::controller(DuaController::class)->group(function () {
         Route::get('/dua-subcategories/{cat_id}', 'DuaSubCategories');
@@ -88,17 +87,37 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('reminder-add', 'remainder');
     });
 
-
-     Route::controller(CategoryController::class)->group(function () {
+    Route::controller(CategoryController::class)->group(function () {
 
         Route::get('/category', 'categoryShow');
 
-     });
-   // Route::post('/category', [CategoryController::class, 'uploadVideo']);
+    });
+    // Route::post('/category', [CategoryController::class, 'uploadVideo']);
+    /**
+     * Messaging Route
+     */
+    Route::controller(MessagingController::class)->group(function () {
+        Route::get('get-conversations', 'getConversations');
+        Route::post('send-message', 'sendMessage');
+        Route::get('users/conversation/{user}', 'getUserConversation');
+    });
 
-   Route::controller(MessagingController::class)->group(function () {
-       Route::get('get-conversations','getConversations');
-       Route::post('send-message','sendMessage');
-       Route::get('users/conversation/{user}','getUserConversation');
-   });
+
+    /**
+     * Block User Route
+     */
+    Route::controller(BlockUserController::class)->group(function () {
+        Route::get('block/users', 'index');
+        Route::post('block/user/{user}', 'blockUser');
+        Route::delete('unblock/user/{user}', 'unblockUser');
+    });
+
+
+    /**
+     * Report User Route
+     */
+    Route::controller(ReportUserController::class)->group(function () {
+        Route::get('report/users', 'index');
+        Route::post('report/user/{user}', 'reportUser');
+    });
 });
