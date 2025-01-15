@@ -28,28 +28,44 @@ class UserController extends Controller
      */
     public function updateUserInfo(Request $request)
     {
-     
-        $validation = Validator::make($request->all(), [
-            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . Auth::id()],
-            'language' => ['required', 'string', 'in:en,ar'],
-            'city' => ['nullable', 'string', 'max:50'],
-            'state' => ['nullable', 'string', 'max:50'],
-            'image' => ['nullable', 'array'],
-            'image.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'age' => ['nullable', 'integer', 'min:14'],
-            'phone' => ['nullable', 'string'],
-            'bio' => ['nullable', 'string'],
-        ]);
-
+        $user = Auth::user();
+    
+        // Validation for both instructors and regular users
+        if ($user->role === 'instructor') { 
+            $validation = Validator::make($request->all(), [
+                'video' => 'nullable|array',
+                'video.*' => 'nullable|mimes:mp4,avi,mkv|max:20000',
+                'title' => 'nullable|array',
+                'title.*' => 'nullable|string',
+                'description' => 'nullable|array',
+                'description.*' => 'nullable|string',
+                'document' => 'nullable|array',
+                'document.*' => 'nullable|mimes:pdf,doc,docx|max:20000',
+                'image' => 'nullable|array',
+                'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Image validation for all users
+            ]);
+        } else {
+            $validation = Validator::make($request->all(), [
+                'username' => ['required', 'string', 'max:255', 'unique:users,username,' . Auth::id()],
+                'language' => ['required', 'string', 'in:en,ar'],
+                'city' => ['nullable', 'string', 'max:50'],
+                'state' => ['nullable', 'string', 'max:50'],
+                'image' => 'nullable|array',
+                'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Image validation for all users
+                'age' => ['nullable', 'integer', 'min:14'],
+                'phone' => ['nullable', 'string'],
+                'bio' => ['nullable', 'string'],
+            ]);
+        }
+    
+        // If validation fails
         if ($validation->fails()) {
             return $this->error([], $validation->errors(), 500);
         }
-
+    
         DB::beginTransaction();
-        $user = Auth::user();
         try {
-            $user = Auth::user();
-
+            // Update the basic user information
             $user->update($request->only([
                 'username',
                 'email',
@@ -61,105 +77,104 @@ class UserController extends Controller
                 'phone',
                 'bio',
             ]));
-
-
-
+    
+            // Handle image upload for all users (both regular users and instructors)
             if ($request->hasFile('image')) {
-                foreach ($user->image as $oldImage) {   
-                   // dd($oldImage);              
-                    $oldFilePath = 'uploads/users/' . $oldImage->image; 
-
-                    $deleteResult = Storage::disk('public')->delete($oldFilePath);
-                    if (!$deleteResult) {
-                        return $this->error([], 'Failed to delete old image', 500);
+                // Delete old images if they exist
+                foreach ($user->image as $oldImage) {
+                    $oldFilePath = public_path($oldImage->image);
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
                     }
-                    if()
                 }
-            
+    
+                // Remove any old image records from the database
+                $user->image()->delete(); 
+    
+                // Upload new images
                 $userImages = [];
                 foreach ($request->file('image') as $image) {
-                    $url = Helper::fileUpload($image, 'users',  $user->username . "-" . uniqid(). "-" . time());
-                    array_push($userImages, [
-                        'image' => $url
-                    ]);
+                    $url = Helper::fileUpload($image, 'users', $user->username . "-" . uniqid() . "-" . time());
+                    if (!$url) {
+                        return $this->error([], "Failed to upload image", 500); // Error if URL is empty
+                    }
+                    $userImages[] = ['image' => $url];
                 }
-
-               
-
-                $user->image()->delete();
+    
+                // Save new images to the database
                 $user->image()->createMany($userImages);
             }
+    
+            // Handle instructor-specific files (video, document)
             if ($user->role === 'instructor') {
-                $validation->after(function ($validator) use ($request) {
-                    $validator->addRules([
-                        'video' => 'nullable|array',
-                        'video.*' => 'nullable|mimes:mp4,avi,mkv|max:20000',
-                        'title' => 'nullable|array',
-                        'title.*' => 'nullable|string',
-                        'description' => 'nullable|array',
-                        'description.*' => 'nullable|string',
-                        'document' => 'nullable|array',
-                        'document.*' => 'nullable|mimes:pdf,doc,docx|max:20000',
-                    ]);
-                });
-
-                if ($validation->fails()) {
-                    return $this->error([], $validation->errors(), 500);
-                }
-
-                if ($request->hasFile('video')) {                   
+    
+                // Video upload
+                if ($request->hasFile('video')) {
                     $titles = $request->title ?? [];
                     $descriptions = $request->description ?? [];
-                   
-                    if (count($titles) !== count($descriptions) ||  count($titles) !== count($request->file('video'))) {
-                        return $this->error('The number of videos, titles, descriptions');
+    
+                    // Ensure that the number of videos, titles, and descriptions match
+                    if (count($titles) !== count($descriptions) || count($titles) !== count($request->file('video'))) {
+                        return $this->error([], 'The number of videos, titles, and descriptions must match', 400);
                     }
-                    // Prepare the videos array for insertion
+    
+                    // Delete old videos
+                    foreach ($user->videos as $oldVideo) {
+                        $oldFilePath = public_path($oldVideo->video);
+                        if (file_exists($oldFilePath)) {
+                            unlink($oldFilePath);
+                        }
+                    }
+    
                     $userVideos = [];
-                    foreach ($request->file('video') as $key => $video) {                       
-                        $videoUrl = Helper::fileUpload($video, 'videos', $user->username ."-" .uniqid(). "-" . time());
-                        array_push($userVideos, [
+                    foreach ($request->file('video') as $key => $video) {
+                        $videoUrl = Helper::fileUpload($video, 'videos', $user->username . "-" . uniqid() . "-" . time());
+                        $userVideos[] = [
                             'video' => $videoUrl,
                             'title' => $titles[$key],
                             'description' => $descriptions[$key],
-                        ]);
-                    }  
-                    foreach ($user->videos as $oldVideo) {
-                        // Delete the old video file from the folder (ensure path is correct)
-                        $oldFilePath = storage_path('app/public/' . $oldVideo->video);  // Assuming videos are stored in the 'public' disk
-                        
-                        if (file_exists($oldFilePath)) {
-                            unlink($oldFilePath);  // Delete the old video file
-                        }
-                    }                
+                        ];
+                    }
+    
+                    // Delete old videos and create new ones
                     $user->videos()->delete();
                     $user->videos()->createMany($userVideos);
                 }
-
-                // Handle document uploads if they exist in the request
+    
+                // Document upload
                 if ($request->hasFile('document')) {
+                    // Delete old documents
+                    foreach ($user->documents as $oldDocument) {
+                        $oldFilePath = public_path($oldDocument->document);
+                        if (file_exists($oldFilePath)) {
+                            unlink($oldFilePath);
+                        }
+                    }
+    
                     $userDocuments = [];
-                    foreach ($request->file('document') as $key => $document) {
-                        $documentUrl = Helper::fileUpload($document, 'documents', $user->username. "-" .uniqid(). "-" . time());
-                        array_push($userDocuments, [
-                            'document' => $documentUrl,                       
-                        ]);
-                    }                  
-                    $user->documents()->delete(); // Assuming you have a `documents()` relationship in the User model
+                    foreach ($request->file('document') as $document) {
+                        $documentUrl = Helper::fileUpload($document, 'documents', $user->username . "-" . uniqid() . "-" . time());
+                        $userDocuments[] = ['document' => $documentUrl];
+                    }
+    
+                    // Delete old documents and create new ones
+                    $user->documents()->delete();
                     $user->documents()->createMany($userDocuments);
                 }
             }
-            
+    
+            // Commit the transaction
             DB::commit();
-
+    
             return $this->success([
                 'user' => $user,
             ], 'User updated successfully', 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return $this->error([], $e->getMessage(), 400);
         }
     }
+    
 
     /**
      * Change Password
