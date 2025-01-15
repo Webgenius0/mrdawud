@@ -119,6 +119,8 @@ class User extends Authenticatable implements JWTSubject
     public function searchChatables(string $query)
     {
      $searchableFields = ['username', 'email'];
+
+
      return User::where(function ($queryBuilder) use ($searchableFields, $query) {
         foreach ($searchableFields as $field) {
                 $queryBuilder->orWhere($field, 'LIKE', '%'.$query.'%');

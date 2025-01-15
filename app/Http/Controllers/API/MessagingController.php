@@ -9,7 +9,9 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+
 use App\Traits\blockusercheck;
+
 use Namu\WireChat\Models\Participant;
 use Namu\WireChat\Events\MessageCreated;
 use Illuminate\Support\Facades\Validator;
@@ -53,6 +55,7 @@ class MessagingController extends Controller
 
         DB::beginTransaction();
         try {
+
             // Blocked User Check // User blocked check
             if($this->checkUserBlocked($request->to_user_id)){
                 return $this->error([], "This user is blocked.", 403);
@@ -69,6 +72,7 @@ class MessagingController extends Controller
             if (!$recipient) {
                 return $this->error([], 'Recipient not found', 404);
             }
+
             $sendMessage = $request->message;
             if($request->hasFile('file') && $request->file('file')->isValid() && $request->message == null){ 
                 $rand = Str::random(6);
@@ -86,10 +90,17 @@ class MessagingController extends Controller
 
             return $this->success(['message' => $message], "Message sent successfully", 200);
 
+
+
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->error([], $e->getMessage(), 500);
         }
+
+
+    }
+
+  
     }
 
     /**

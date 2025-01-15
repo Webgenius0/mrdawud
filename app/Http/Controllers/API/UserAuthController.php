@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
 use Exception;
 use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class UserAuthController extends Controller
 {
