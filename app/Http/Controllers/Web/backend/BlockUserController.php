@@ -7,6 +7,8 @@ use App\Models\BlockUser;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helper\Helper;
+use App\Models\User;
+use App\Models\ReportUser;
 class BlockUserController extends Controller
 {
     public function index(Request $request)
@@ -48,6 +50,7 @@ class BlockUserController extends Controller
     public function show($id)
     {
         $user=BlockUser::find($id);
-        return view('backend.layout.blockuser.show',compact('user'));
+        $report=ReportUser::where('reported_user_id',$user->id)->get();
+        return view('backend.layout.blockuser.show',compact('user','report'));
     }
 }

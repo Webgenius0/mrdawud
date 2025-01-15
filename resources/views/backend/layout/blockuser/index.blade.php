@@ -21,6 +21,7 @@
                                     </div>
                                 </th>
                                 <th>Username</th>
+                                <th>Report</th>
                                 <th>Email</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -87,6 +88,12 @@
                             {
                                 data: 'username',
                                 name: 'username',
+                                orderable: false,
+                                searchable: false
+                            },
+                            {
+                                data: 'report',
+                                name: 'report',
                                 orderable: false,
                                 searchable: false
                             },
