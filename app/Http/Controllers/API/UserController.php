@@ -56,6 +56,8 @@ class UserController extends Controller
                     'bio',
                 ]));
 
+
+
             if ($request->hasFile('images')) {
                 $userImages = [];
                 foreach ($request->file('images') as $image) {
@@ -66,6 +68,19 @@ class UserController extends Controller
                 }
                 $user->images()->delete();
                 $user->images()->createMany($userImages);
+            }
+            if($user->role === 'instructor')
+            {
+                $validation->after(function ($validator) use ($request) {
+                    $validator->addRules([
+                        'video' => 'nullable|array',
+                        'video.*' => 'nullable|mimes:mp4,avi,mkv|max:20000', // Add file validation for videos
+                        'documentation' => 'nullable|array',
+                        'documentation.*' => 'nullable|mimes:pdf,doc,docx|max:20000', // Add file validation for documentation
+                    ]);
+                });
+
+                
             }
 
             DB::commit();

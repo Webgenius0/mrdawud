@@ -113,11 +113,10 @@ class User extends Authenticatable implements JWTSubject
     * Search for users when creating a new chat or adding members to a group.
     * Customize the search logic to limit results, such as restricting to friends or eligible users only.
     */
-
     public function searchChatables(string $query)
     {
      $searchableFields = ['username'];
-   
+
      return User::where(function ($queryBuilder) use ($searchableFields, $query) {
         foreach ($searchableFields as $field) {
                 $queryBuilder->orWhere($field, 'LIKE', '%'.$query.'%');
