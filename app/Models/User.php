@@ -124,4 +124,19 @@ class User extends Authenticatable implements JWTSubject
         ->limit(20)
         ->get();
     }
+
+    public function videos()
+    {
+        return $this->hasMany(VideoUpload::class);
+    }
+
+    public function image()
+    {
+        return $this->hasMany(UserImages::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 }
