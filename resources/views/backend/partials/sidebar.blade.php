@@ -123,7 +123,7 @@
                 <a class="d-flex align-items-center" href="{{ route('index') }}">
                     <i data-feather="users"></i>
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
-                        Block User
+                       Report
                     </span>
                 </a>
             </li>

@@ -2,7 +2,7 @@
 @push('style')
     <link rel="stylesheet" href="{{ asset('backend/assets/datatable/css/datatables.min.css') }}">
 @endpush
-@section('title', 'Users')
+@section('title', 'Users List')
 @section('content')
     <div class="app-content content ">
         <div class="card">
@@ -22,6 +22,7 @@
                                 </th>
                                 <th>Username</th>
                                 <th>Email</th>
+                                
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -96,6 +97,7 @@
                                 orderable: false,
                                 searchable: false
                             },
+                            
                             {
                                 data: 'status',
                                 name: 'status',

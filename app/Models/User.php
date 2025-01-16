@@ -142,4 +142,17 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Document::class);
     }
+
+    //backend
+    public function reportuser()
+    {
+        return $this->hasMany(ReportUser::class, 'reported_user_id');
+    }
+
+    //block users
+    public function blockuser()
+    {
+        return $this->hasMany(BlockUser::class, 'blocked_user_id');
+    }
+
 }

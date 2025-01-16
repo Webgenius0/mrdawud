@@ -9,6 +9,8 @@ use App\Services\UserService;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\BlockUser;
+use App\Models\ReportUser;
 
 class UserController extends Controller
 {
@@ -22,7 +24,8 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::where('role', 'user')->latest();
+           $data = User::where('role', 'user')->with(['blockuser', 'reportuser.reported_user'])->latest();
+          // $data = BlockUser::with(['blocked_user', 'blocked_user.reportuser'])->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('status', function ($data) {
@@ -35,6 +38,12 @@ class UserController extends Controller
                 ->addColumn('bulk_check', function ($data) {
                     return Helper::tableCheckbox($data->id);
 
+                })
+                ->addColumn('report', function ($data) {                 
+                    if ($data->reportuser->isEmpty()) {
+                        return 'No blocked report';
+                    }                  
+                    return $data->reportuser->pluck('report')->implode(', ');
                 })
                 ->addColumn('action', function ($data) {
                     $viewRoute = route('show.users', ['id' => $data->id]);
@@ -57,6 +66,8 @@ class UserController extends Controller
     public function show($id)
     {
         $user=User::find($id);
+        $user->load('reportuser.reported_user');
+        //dd($user);
         return view('backend.layout.user.show',compact('user'));
     }
 
