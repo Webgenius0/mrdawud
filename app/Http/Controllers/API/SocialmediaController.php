@@ -63,7 +63,7 @@ class SocialmediaController extends Controller
                 }
 
                 if (!empty($socialMediaData)) {
-                    $user->socialMedia()->createMany($socialMediaData);
+                    $user->Socialmedia()->createMany($socialMediaData);
                 }
             }
 
