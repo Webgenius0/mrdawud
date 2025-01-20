@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use Exception;
-use App\Models\Socialmedia;
+use App\Models\SocialMedia;
 use App\Traits\apiresponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -47,7 +47,7 @@ class SocialmediaController extends Controller
                     $platform = isset($request->platform[$i]) ? $request->platform[$i] : '';
 
                    
-                    $existingSocialMedia = $user->socialMedia()->where('url', $request->url[$i])->first();
+                    $existingSocialMedia = $user->socialmedia()->where('url', $request->url[$i])->first();
 
                     if ($existingSocialMedia) {
                        
@@ -67,7 +67,7 @@ class SocialmediaController extends Controller
                 }
 
                 if (!empty($socialMediaData)) {
-                    $user->socialMedia()->createMany($socialMediaData);
+                    $user->socialmedia()->createMany($socialMediaData);
                 }
             }
 
