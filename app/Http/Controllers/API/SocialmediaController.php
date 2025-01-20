@@ -44,7 +44,7 @@ class SocialmediaController extends Controller
                     $platform = isset($request->platform[$i]) ? $request->platform[$i] : '';
 
                    
-                    $existingSocialMedia = $user->Socialmedia()->where('url', $request->url[$i])->first();
+                    $existingSocialMedia = $user->socialmedia()->where('url', $request->url[$i])->first();
 
                     if ($existingSocialMedia) {
                        
@@ -64,7 +64,7 @@ class SocialmediaController extends Controller
                 }
 
                 if (!empty($socialMediaData)) {
-                    $user->Socialmedia()->createMany($socialMediaData);
+                    $user->socialmedia()->createMany($socialMediaData);
                 }
             }
 
