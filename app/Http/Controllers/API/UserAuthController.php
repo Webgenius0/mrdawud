@@ -28,8 +28,8 @@ class UserAuthController extends Controller
     {
         // Validate incoming request
         $validator = Validator::make($request->all(), [
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'username' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email','confirmed'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'language' => ['required', 'string', 'in:en,ar'],
             'city' => ['nullable', 'string', 'max:50'],
@@ -67,7 +67,7 @@ class UserAuthController extends Controller
             ]);
 
             $validated['password'] = bcrypt($validated['password']);
-
+            $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
             $user = User::create($validated);
 
             if ($request->hasFile('images')) {
