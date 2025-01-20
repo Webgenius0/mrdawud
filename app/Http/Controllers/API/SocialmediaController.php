@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use Exception;
-use App\Models\Socialmedia;
 use App\Traits\apiresponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 
 class SocialmediaController extends Controller
@@ -33,8 +31,6 @@ class SocialmediaController extends Controller
 
         try {
             $user = auth()->user();
-
-            
             $socialMediaData = [];
             $socialMediaCount = count($request->url);
             $responseMessage = [];
@@ -47,7 +43,7 @@ class SocialmediaController extends Controller
                     $platform = isset($request->platform[$i]) ? $request->platform[$i] : '';
 
                    
-                    $existingSocialMedia = $user->socialMedia()->where('url', $request->url[$i])->first();
+                    $existingSocialMedia = $user->Socialmedia()->where('url', $request->url[$i])->first();
 
                     if ($existingSocialMedia) {
                        
