@@ -17,8 +17,8 @@ class BlockUserController extends Controller
            //data = User::where('role', 'user')->with(['blockuser', 'reportuser.reported_user'])->latest();
            // $data = BlockUser::with(['blocked_user', 'blocked_user.reportuser'])->get();
            $data = User::where('role', 'user')
-            ->with(['blockuser.reported_user']) // Eager load blockuser and related reported_user
-            ->whereHas('blockuser') // Only get users who have a blockuser (i.e., blocked users)
+            ->with(['blockuser.blocked_user']) 
+            ->whereHas('blockuser') 
             ->latest()
             ->get();
 
@@ -42,7 +42,7 @@ class BlockUserController extends Controller
                      return $data->reportuser->pluck('report')->implode(', ');
                  })
                  ->addColumn('action', function ($data) {
-                     $viewRoute = route('index', ['id' => $data->id]);
+                     $viewRoute = route('show.block.user', ['id' => $data->id]);
                      return '<div>
                           <a class="btn btn-sm btn-primary" href="' . $viewRoute . '">
                               <i class="fa-solid fa-eye"></i>
@@ -63,7 +63,7 @@ class BlockUserController extends Controller
     public function show($id)
     {
         $user=BlockUser::find($id);
-        
+    
         $report=ReportUser::where('reported_user_id',$user->blocked_user_id)->get();
         return view('backend.layout.blockuser.show',compact('user','report'));
     }

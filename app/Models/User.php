@@ -154,5 +154,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(BlockUser::class, 'blocked_user_id');
     }
-
+//social Media
+    public function socialmedia()
+    {
+        return $this->hasMany(SocialMedia::class);
+    }
 }

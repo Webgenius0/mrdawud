@@ -36,10 +36,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/view/users/{id}', 'show')->name('show.users');
         Route::get('/status/users/{id}', 'status')->name('user.status');
     });
-
+//block user
     Route::controller(BlockUserController::class)->group(function () {
         Route::get('/block-user', 'index')->name('index');
         Route::get('/block-user/{id}', 'blockUser')->name('block.user');
+        Route::get('/view/block-user/{id}', 'show')->name('show.block.user');
         
     });
 

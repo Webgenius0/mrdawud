@@ -93,6 +93,7 @@ class ProductController extends Controller
                 $product->image = $url;
             }
            
+
             $product->save();
             return redirect()->route('admin.product.index')->with('t-success','Product created successfully');
         } catch (Exception $e) {

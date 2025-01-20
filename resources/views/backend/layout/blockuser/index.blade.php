@@ -74,7 +74,7 @@
                         pagingType: "full_numbers",
                         dom: "<'row justify-content-between table-topbar'<'col-md-2 col-sm-4 px-0'l><'col-md-2 col-sm-4 px-0'f>>tipr",
                         ajax: {
-                            url: "{{ route('user.list') }}",
+                            url: "{{ route('index') }}",
                             type: "get",
                         },
 
