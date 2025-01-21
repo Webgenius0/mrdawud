@@ -41,6 +41,7 @@ class User extends Authenticatable implements JWTSubject
         'role',
         'lat',
         'lng',
+        'country',
     ];
 
     /**
@@ -157,7 +158,7 @@ class User extends Authenticatable implements JWTSubject
 //social Media
     public function socialmedia()
     {
-        return $this->hasMany(SocialMedia::class);
+        return $this->hasMany(Socialmedia::class);
     }
 
 

@@ -46,7 +46,7 @@ class UserController extends Controller
             ]);
         } else {
             $validation = Validator::make($request->all(), [
-                'username' => ['required', 'string', 'max:255', 'unique:users,username,' . Auth::id()],
+                'username' => ['required', 'string', 'max:255'],
                 'language' => ['required', 'string', 'in:en,ar'],
                 'city' => ['nullable', 'string', 'max:50'],
                 'state' => ['nullable', 'string', 'max:50'],
@@ -55,6 +55,9 @@ class UserController extends Controller
                 'age' => ['nullable', 'integer', 'min:14'],
                 'phone' => ['nullable', 'string'],
                 'bio' => ['nullable', 'string'],
+                'country'=>['nullable','string'],
+                'lat' => ['nullable', 'string'],
+                'lng' => ['nullable', 'string'],
             ]);
         }
     
@@ -76,6 +79,9 @@ class UserController extends Controller
                 'age',
                 'phone',
                 'bio',
+                'country',
+                'lat',
+                'lng',
             ]));
     
             // Handle image upload for all users (both regular users and instructors)
@@ -107,7 +113,8 @@ class UserController extends Controller
     
             // Handle instructor-specific files (video, document)
             if ($user->role === 'instructor') {
-    
+                $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
+                $user->update($validated);
                 // Video upload
                 if ($request->hasFile('video')) {
                     $titles = $request->title ?? [];
@@ -161,6 +168,10 @@ class UserController extends Controller
                     $user->documents()->delete();
                     $user->documents()->createMany($userDocuments);
                 }
+                if($request->role==='instructor'){
+                    
+                }
+                $user->update($validated);
             }
     
             // Commit the transaction
