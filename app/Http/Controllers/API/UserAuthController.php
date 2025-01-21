@@ -67,7 +67,11 @@ class UserAuthController extends Controller
             ]);
 
             $validated['password'] = bcrypt($validated['password']);
-            $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
+            if($request->role === 'instructor')
+            {
+                $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
+            }
+           
             $user = User::create($validated);
 
             if ($request->hasFile('images')) {
