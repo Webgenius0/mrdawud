@@ -9,6 +9,7 @@ use App\Http\Controllers\API\MessagingController;
 use App\Http\Controllers\API\RemainderController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
+use App\Http\Controllers\API\audioupload\AudioUploadController;
 use App\Http\Controllers\API\instructor\DocumentController;
 use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\BlockUserController;
@@ -198,6 +199,13 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('/edit-video/{id}', 'editVideo');
         Route::post('/delete-video/{id}', 'deleteVideo');
     });
+    //Audio Upload
+    Route::controller(AudioUploadController::class)->group(function () {
+        Route::post('audio-upload', 'audioUpload');
+        Route::get('/show-audio', 'showAudio');
+        Route::post('/edit-audio/{id}', 'updateAudio');
+        Route::post('/delete-audio/{id}', 'deleteAudio');
+    });
     //Reminder
     Route::controller(RemainderController::class)->group(function () {
         Route::post('reminder-add', 'remainder');
@@ -268,4 +276,5 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::get('report/users', 'index');
         Route::post('report/user/{user}', 'reportUser');
     });
+
 });

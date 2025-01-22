@@ -160,7 +160,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Socialmedia::class);
     }
-
+//audio Uplloads
+    public function audio()
+    {
+        return $this->hasMany(AudioUpload::class);
+    }
 
 
 }
