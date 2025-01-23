@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function showProduct()
     {
         try {
-            $product= Product::where('status','active')->select('id','title','slug','price','stock','image')->get();
+            $product= Product::where('status','active')->select('id','category_id','title','slug','price','stock','image')->get();
             return $this->success([
                 'product'=>$product,
                 'message'=>'Product has been fetched successfully'
