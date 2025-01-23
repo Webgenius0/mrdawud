@@ -14,6 +14,7 @@ use App\Http\Controllers\API\instructor\DocumentController;
 use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\BlockUserController;
 use App\Http\Controllers\API\ReportUserController;
+use App\Http\Controllers\API\addTocart\AddToCartController;
 
 
 use App\Models\BlockUser;
@@ -208,7 +209,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     });
     //Reminder
     Route::controller(RemainderController::class)->group(function () {
-        Route::post('reminder-add', 'remainder');
+        Route::post('reminder-add', 'uploadReminder');
         Route::get('remainder-list', 'remainderList');
         Route::post('remainder-edit/{id}', 'remainderEdit');
         Route::post('remainder-delete/{id}', 'remainderDelete');
@@ -232,6 +233,13 @@ Route::group(['middleware' => ['jwt.verify']], function () {
      Route::controller(ProductController::class)->group(function () {
 
         Route::get('/show-product', 'showProduct');
+
+     });
+     //add to Cart
+     Route::controller(AddToCartController::class)->group(function () {
+
+        Route::post('/add-to-cart', 'addToCart');
+        Route::get('/cart-list', 'cartList');
 
      });
 
