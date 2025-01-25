@@ -22,15 +22,17 @@ class RemainderController extends Controller
     {
         // Validate the incoming request
         $validator = Validator::make($request->all(), [
-            'audio_id' => 'required|exists:audio_uploads,id', // Audio is selected from AudioUpload model
-            'type' => 'required|array',
-            'type.*' => 'in:fajar,zuhur,asor,magrib,esha,jumma', // Array of types
-            'date' => 'required|array',
-            'date.*' => 'date', // Array of dates
-            'time' => 'required|array',
-            'time.*' => 'string', // Array of times
+            'audio_id'=>'required|array',
+            'audio_id.*' => 'required|exists:audio_uploads,id',
+            'type' => 'required|array',         // Must be an array
+            'type.*' => 'required',              // Each item in the array must be one of these values
+            'date' => 'required|array',         // Must be an array
+            'date.*' => 'date',                 // Each item in the array must be a valid date
+            'time' => 'required|array',         // Must be an array
+            'time.*' => 'string',               // Each item in the array must be a string
         ]);
     
+        // If validation fails, return errors
         if ($validator->fails()) {
             return $this->error('Validation Error.', $validator->errors());
         }
@@ -50,13 +52,19 @@ class RemainderController extends Controller
             }
     
             // Fetch the audio file from the AudioUpload model using the selected audio ID
-            $audio = AudioUpload::find($audioId); // Find the audio using the provided audio_id
-            
+            $audio = AudioUpload::find($audioId);
+    
             if (!$audio) {
                 return $this->error('Audio not found.');
             }
     
+            // Store reminders
+            $responseMessages = [];  // Store multiple messages
+            $reminders = [];
+    
+            // Loop through the arrays and insert each reminder
             for ($i = 0; $i < count($types); $i++) {
+                // Check if reminder already exists for this combination
                 $remainder = Remainder::where('user_id', $user->id)
                     ->where('type', $types[$i])
                     ->where('date', $dates[$i])
@@ -64,15 +72,10 @@ class RemainderController extends Controller
                     ->first();
     
                 if ($remainder) {
-                    return $this->error("Remainder for type '{$types[$i]}' and date '{$dates[$i]}' already exists.");
+                    $responseMessages[] = "Reminder for type '{$types[$i]}' and date '{$dates[$i]}' already exists.";
+                    continue;  // Skip this iteration if reminder already exists
                 }
-            }
-            // Store reminders
-            $responseMessage = [];
-            $reminders = [];
     
-            // Loop through the arrays and insert each reminder
-            for ($i = 0; $i < count($types); $i++) {
                 // Create a new remainder entry
                 $remainder = new Remainder();
                 $remainder->user_id = $user->id;
@@ -80,26 +83,27 @@ class RemainderController extends Controller
                 $remainder->type = $types[$i];
                 $remainder->date = $dates[$i];
                 $remainder->time = $times[$i];
-                // Save the selected audio ID in the remainder
-    
-                // Save the remainder
                 $remainder->save();
-                $reminders[] = $remainder;
     
-                $responseMessage[] = "Remainder for type '{$types[$i]}' and date '{$dates[$i]}' has been added successfully.";
+                $reminders[] = $remainder;
+                $responseMessages[] = "Reminder for type '{$types[$i]}' and date '{$dates[$i]}' has been added successfully.";
             }
     
             DB::commit();
     
+            // Return success with all messages
             return $this->success([
-                'messages' => $responseMessage,
-                'reminders' => $reminders
+                'status' => 200,
+                'messages' => $responseMessages,  // Return an array of messages
+                
             ], 'Reminders added successfully.', 200);
+    
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->error('An error occurred while adding or updating the remainder.', $e->getMessage());
+            return $this->error('An error occurred while adding or updating the reminder.', $e->getMessage());
         }
     }
+    
     
 
     //show remainder-List  by user

@@ -107,43 +107,41 @@ public function decreaseQuantity($cart_id)
         ], 404);
     }
 
-    // Decrement the quantity
+    // Check if user is authenticated
+    $user = auth()->user(); // Get the authenticated user
+    if (!$user) {
+        return response()->json(['message' => 'User not authenticated.'], 401);
+    }
+
+    // Decrement the quantity or remove the item if quantity is 1
     if ($cartItem->quantity > 1) {
         $cartItem->quantity -= 1;
         $cartItem->save();
 
         return response()->json([
-           'message' => 'User not authenticated.',
-        ], 401);
+            'message' => 'Quantity decreased successfully.',
+        ]);
+    } else {
+        $cartItem->delete();  // Remove the cart item if quantity is 1
+        return response()->json([
+            'message' => 'Cart item removed.',
+        ]);
     }
-
-   try {
-    $cartItems = AddToCart::where('user_id', $user->id)
-    ->with('product:id,title,image,price') // Include only necessary fields from Product
-    ->get();
-
-// Map to extract only product details
-$products = $cartItems->map(function ($item) {
-    return [
-        'id' => $item->product->id,
-        'product_id' => $item->product->id ?? null,
-        'quantity' => $item->quantity,
-        'price' => $item->product->price ?? null,
-        'title' => $item->product->title ?? null,
-        'image' => $item->product->image ?? null,
-      
-        
-
-
-    ];
-});
-
-    return response()->json([
-        'message' => 'Cart item not found',
-    ], 404);
 }
-
-
+//remove cart with id
+public function removeCart($cart_id)
+{
+    $cartItem = AddToCart::find($cart_id);
+    if (!$cartItem) {
+        return response()->json([
+            'message' => 'Cart item not found',
+        ], 404);
+    }
+    $cartItem->delete();
+    return response()->json([
+        'message' => 'Cart item removed.',
+    ]);
+}
 
 
 //delete cart
@@ -170,4 +168,5 @@ public function clearCart()
 
 
 }
+
 

@@ -241,7 +241,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('/add-and-update/{id}', 'addToCart');
         Route::post('/decrease-quantity/{id}', 'decreaseQuantity');
         Route::get('/cart-list', 'cartList');   
-        Route::delete('/remove-cart/{id}', 'removeCartItem');
+        Route::delete('/remove-cart/{id}', 'removeCart');
         Route::delete('/clear-cart', 'clearCart');
 
      });
