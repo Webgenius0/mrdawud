@@ -238,8 +238,11 @@ Route::group(['middleware' => ['jwt.verify']], function () {
      //add to Cart
      Route::controller(AddToCartController::class)->group(function () {
 
-        Route::post('/add-to-cart', 'addToCart');
-        Route::get('/cart-list', 'cartList');
+        Route::post('/add-and-update/{id}', 'addToCart');
+        Route::post('/decrease-quantity/{id}', 'decreaseQuantity');
+        Route::get('/cart-list', 'cartList');   
+        Route::delete('/remove-cart/{id}', 'removeCartItem');
+        Route::delete('/clear-cart', 'clearCart');
 
      });
 

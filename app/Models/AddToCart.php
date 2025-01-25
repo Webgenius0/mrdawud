@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AddToCart extends Model
 {
-    protected $fillable = ['user_id', 'product_id', 'quantity'];
+    protected $guarded = [];
     public function user()
     {
         return $this->belongsTo(User::class);
