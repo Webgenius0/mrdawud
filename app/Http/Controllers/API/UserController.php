@@ -46,8 +46,8 @@ class UserController extends Controller
             ]);
         } else {
             $validation = Validator::make($request->all(), [
-                'username' => ['required', 'string', 'max:255'],
-                'language' => ['required', 'string', 'in:en,ar'],
+                'username' => ['nullable', 'string', 'max:255'],
+                'language' => ['nullable', 'string', 'in:en,ar'],
                 'city' => ['nullable', 'string', 'max:50'],
                 'state' => ['nullable', 'string', 'max:50'],
                 'image' => 'nullable|array',

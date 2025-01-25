@@ -98,9 +98,6 @@ $products = $cartItems->map(function ($item) {
         'price' => $item->product->price ?? null,
         'title' => $item->product->title ?? null,
         'image' => $item->product->image ?? null,
-      
-        
-
 
     ];
 });
