@@ -18,6 +18,12 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->integer('quantity');
+            $table->string('size')->nullable();
+            $table->string('price');
+            $table->string('product_category')->nullable();
+            $table->string('product_name')->nullable();
+            $table->string('product_code')->nullable();
+            $table->string('session_id');
             $table->timestamps();
         });
     }
