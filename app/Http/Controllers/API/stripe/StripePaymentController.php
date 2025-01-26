@@ -19,16 +19,28 @@ class StripePaymentController extends Controller
     public function orderChockout(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required',
-            'user_id' => 'required',
-            'category_id' => 'required',
-            'title' => 'required',
-            'price' => 'required',
-            'total_price' => 'required',
+            //table join for information purposes
+            'product_id' => 'required|integer',
+            'uuid' => 'required|string',
+            'user_id' => 'required|integer',
+            'category_id' => 'required|integer',
+            'billing_address_id' => 'required|integer',            
+            'payment_method_id' => 'required|string',
+            
+            'product_name' => 'required',
+            'title' => 'required',           
             'quantity' => 'required',           
             'email' => 'required',
-            'name' => 'required',
+
+            //amount
+            'price' => 'required|numeric',
+            'subtotal' => 'required',
+            'tax' => 'nullable|numeric',
+
+
+            
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
@@ -39,39 +51,39 @@ class StripePaymentController extends Controller
         }
         DB::beginTransaction();
         
+        try {
+            $validateData=$validator->validated();
+
+            $productPrice= Product::find($request->product_id);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
             
     }
-    public function StripePayment(Request $request)
-    {
-        try {
+   
 
-          $resp=$stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-            $stripe->tokens->create([
-                'card' => [
-                    'number' => $request->number,
-                    'exp_month' => $request->exp_month,
-                    'exp_year' => $request->exp_year,
-                    'cvc' => $request->cvc,
-                ],
-            ]);
+     /**
+     *  store order information
+     */
 
+     private function storeOrder(Request $request)
+     {
+         $order = Order::create([
+             'user_id' => $request->user_id,
+             'product_id' => $request->product_id,
+             'uuid' => $request->uuid,
+             'category_id' => $request->category_id,
+             'billing_address_id' => $request->billing_address_id,
+             'payment_method_id' => $request->payment_method_id,
+             'product_name' => $request->product_name,
+             'title' => $request->title,
+             'quantity' => $request->quantity,
+             'email' => $request->email,
+             'price' => $request->price,
+            'subtotal' => $request->subtotal,
+             'tax' => $request->tax,
+         ]);
 
-           
-          $response=  $stripe->charges->create([
-                'amount' => $request->amount,
-                'currency' => 'usd',
-                'source' => $resp->id,
-            ]);
-            return response()->json([
-                'status' => 200,
-                'data' => $response
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                dd($th->getMessage()),
-                'status' => 500,
-                'data' => $th
-            ]);
-        }
-    }
+         return $order;
+     }
 }
