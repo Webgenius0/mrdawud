@@ -155,16 +155,21 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(BlockUser::class, 'blocked_user_id');
     }
-//social Media
+    //social Media
     public function socialmedia()
     {
         return $this->hasMany(Socialmedia::class);
     }
-// //audio Uplloads
-//     public function audio()
-//     {
-//         return $this->hasMany(AudioUpload::class);
-//     }
 
+    public function favouriteTeachers()
+    {
+        return $this->belongsToMany(User::class, 'favourite_teachers', 'user_id', 'teacaher_id');
+    }
+
+    // A user can be favourited by many users as an instructor
+    public function favouredByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favourite_teachers', 'teacher_id', 'user_id');
+    }
 
 }

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Api\backend\Auth;
 use App\Http\Controllers\API\product\ProductController;
-
+use App\Http\Controllers\API\instructor\InstructorListController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
 use App\Http\Controllers\API\MessagingController;
@@ -15,10 +15,14 @@ use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\BlockUserController;
 use App\Http\Controllers\API\ReportUserController;
 use App\Http\Controllers\API\addTocart\AddToCartController;
+use App\Http\Controllers\API\stripe\BillingAddressController;
+use App\Http\Controllers\API\stripe\StripePaymentController;
+use App\Http\Controllers\API\stripe\StripeCardController;
 
 
 use App\Models\BlockUser;
 use Illuminate\Support\Facades\Route;
+use Stripe\Stripe;
 
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -288,4 +292,35 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('report/user/{user}', 'reportUser');
     });
 
+     /**
+     * Instructor List
+     */
+    Route::controller(InstructorListController::class)->group(function () {
+        Route::get('/instructor-list', 'index');
+        Route::post('/favourite-teacher/{id}', 'favouriteTeacher');
+        Route::get('/show-favourite-teacher', 'showFavouriteTeacher');
+        Route::post('/delete-favourite-teacher/{id}', 'deleteFavouriteTeacher');
+    });
+
+    /**
+     * Billing Address
+     */
+    Route::controller(BillingAddressController::class)->group(function () {
+        Route::get('/address-list', 'index');
+        Route::post('/address-store', 'store');
+        Route::post('/address-update/{id}', 'update');
+        Route::post('/address-delete/{id}', 'destroy');
+    });
+
+    /**
+     * Add stripe card
+     */
+    Route::controller(StripeCardController::class)->group(function () {
+        Route::get('/card-list', 'index');
+        Route::post('/add-card', 'storeCard');
+    });
+
+    Route::controller(StripePaymentController::class)->group(function () {
+        Route::post('/payment', 'StripePayment');
+    });
 });

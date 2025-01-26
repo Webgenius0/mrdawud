@@ -24,12 +24,12 @@ class RemainderController extends Controller
         $validator = Validator::make($request->all(), [
             'audio_id'=>'required|array',
             'audio_id.*' => 'required|exists:audio_uploads,id',
-            'type' => 'required|array',         // Must be an array
-            'type.*' => 'required',              // Each item in the array must be one of these values
-            'date' => 'required|array',         // Must be an array
-            'date.*' => 'date',                 // Each item in the array must be a valid date
-            'time' => 'required|array',         // Must be an array
-            'time.*' => 'string',               // Each item in the array must be a string
+            'type' => 'required|array',         
+            'type.*' => 'required',             
+            'date' => 'required|array',         
+            'date.*' => 'date',                 
+            'time' => 'required|array',       
+            'time.*' => 'string',               
         ]);
     
         // If validation fails, return errors

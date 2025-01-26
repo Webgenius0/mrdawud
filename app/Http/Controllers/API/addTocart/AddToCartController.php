@@ -77,23 +77,49 @@ public function cartList()
             $query->orWhere('user_id', $userId);
         }
     })->get();
-
+    
     $transformedCartItems = $cartItems->map(function ($item) {
+        $totalPrice = $item->quantity * $item->price; // Price * quantity for each product
+        $taxRate = $item->product->taxes ?? 0; // Get the raw tax rate (e.g., 10 for 10%)
+        
         return [
             'id' => $item->id,
-            'product_name' => $item->product_name ?? null, // Use the product's name if available
-            'categore'=>$item->product_category ?? null,
+            'product_name' => $item->product_name ?? null,
+            'category' => $item->product_category ?? null,
             'quantity' => $item->quantity,
             'price' => $item->price,
-            'image' => $item->product->image ?? null, // Use the product's image if available
-            'total_price' => $item->quantity * $item->price, // Calculate total price
+            'image' => $item->product->image ?? null,
+            'total_price' => $totalPrice, // Price * Quantity for each product
+            'taxes' => $taxRate,  // Raw tax rate (e.g., 10 for 10%)
         ];
     });
-
+    
+    // Sum of all product prices (without taxes) based on quantity
+    $totalProductPrice = $transformedCartItems->sum(function ($item) {
+        return $item['total_price']; // Sum of all prices multiplied by quantity
+    });
+    
+    
+    $totalTaxRate = $transformedCartItems->sum(function ($item) {
+        return $item['taxes'];
+    });
+    
+    
+    $totalTaxAmount = ($totalProductPrice * $totalTaxRate) / 100; // Calculate total tax amount
+    
+    // Final total price with taxes
+    $totalPriceWithTaxes = $totalProductPrice + $totalTaxAmount;
+    
     return response()->json([
         'message' => 'Cart items retrieved successfully',
-        'data' => $transformedCartItems,
+        'total_product_price' => $totalProductPrice, 
+        'total_tax_rate' => $totalTaxRate, 
+        //'total_tax_amount' => $totalTaxAmount, 
+        'total_price_with_taxes' => $totalPriceWithTaxes, 
+        'data' => $transformedCartItems
     ]);
+    
+    
 }
 //remove quantity from cart
 public function decreaseQuantity($cart_id)
@@ -108,7 +134,7 @@ public function decreaseQuantity($cart_id)
     }
 
     // Check if user is authenticated
-    $user = auth()->user(); // Get the authenticated user
+    $user = auth()->user(); 
     if (!$user) {
         return response()->json(['message' => 'User not authenticated.'], 401);
     }

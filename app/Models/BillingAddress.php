@@ -4,20 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserImages extends Model
+class BillingAddress extends Model
 {
     protected $fillable = [
         'user_id',
-        'image',
+        'address',
+        'city',
+        'state',
+        'country',
+        'zip_code',
+        'phone_number',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function favouriteTeachers()
-    {
-        return $this->belongsTo(FavouriteTeacher::class,'teacher_id');
     }
 }
