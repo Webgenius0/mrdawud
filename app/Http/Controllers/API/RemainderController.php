@@ -12,133 +12,192 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\AudioUpload;
-use Illuminate\Support\Carbon;
-
+use Carbon\Carbon;
 
 class RemainderController extends Controller
 {
     use apiresponse;
 
     public function uploadReminder(Request $request)
-{
-    // Validate the incoming request
-    $validator = Validator::make($request->all(), [
-        'audio_id' => 'required',
-        //'audio_id.*' => 'required|exists:audio_uploads,id',
-        'type' => 'required|array',
-        'type.*' => 'required',
-        'date' => 'required|array',
-        'date.*' => 'date',
-        'time' => 'required|array',
-        'time.*' => 'string',
-    ]);
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'audio_id' => 'required|array',
+            'audio_id.*' => 'required|exists:audio_uploads,id',
+            'type' => 'required|array',
+            'type.*' => 'required', // Allowed types
+            'date' => 'required|array',
+            'date.*' => 'required|date', // Validate date format
+            'time' => 'required|array',
+            'time.*' => 'required|date_format:g:i a', // Validate time format (e.g., 5:20 pm)
+        ]);
 
-    // If validation fails, return errors
-    if ($validator->fails()) {
-        return $this->error('Validation Error.', $validator->errors());
-    }
-
-    DB::beginTransaction();
-    try {
-        // Get all inputs as arrays
-        $audioId = $request->audio_id; // Audio ID selected by the user
-        $types = $request->type;
-        $dates = $request->date;
-        $times = $request->time;
-
-        $user = auth()->user();
-
-        if (!$user) {
-            return $this->error('User not found.');
+        // If validation fails, return errors
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error.',
+                'data' => $validator->errors(),
+            ], 422);
         }
 
-        // Fetch the audio file from the AudioUpload model using the selected audio ID
-        $audio = AudioUpload::find($audioId);
+        DB::beginTransaction();
 
-        if (!$audio) {
-            return $this->error('Audio not found.');
-        }
+        try {
+            // Get all inputs as arrays
+            $audioIds = $request->audio_id; // Array of audio IDs
+            $types = $request->type;
+            $dates = $request->date;
+            $times = $request->time;
 
-        // Store reminders
-        $responseMessages = [];  // Store multiple messages
-        $reminders = [];
+            $user = auth()->user();
 
-        // Loop through the arrays and insert each reminder
-        for ($i = 0; $i < count($types); $i++) {
-            // Check if reminder already exists for this combination
-            $remainder = Remainder::where('user_id', $user->id)
-                ->where('type', $types[$i])
-                ->where('date', $dates[$i])
-                ->where('time', $times[$i])
-                ->first();
-
-            if ($remainder) {
-                $responseMessages[] = "Reminder for type '{$types[$i]}' and date '{$dates[$i]}' already exists.";
-                continue;  // Skip this iteration if reminder already exists
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found.',
+                ], 404);
             }
 
-            // Convert time to 24-hour format using Carbon
-            $formattedTime = Carbon::createFromFormat('h:i A', $times[$i])->format('H:i:s');
+            $responseMessages = []; // Store multiple messages
 
-            // Create a new remainder entry
-            $remainder = new Remainder();
-            $remainder->user_id = $user->id;
-            $remainder->audio = $audio->id;
-            $remainder->type = $types[$i];
-            $remainder->date = $dates[$i];
-            $remainder->time = $formattedTime; // Store time in 24-hour format
-            $remainder->save();
+            // Loop through the arrays and insert each reminder
+            for ($i = 0; $i < count($types); $i++) {
+               
+                $formattedTime = Carbon::createFromFormat('g:i a', $times[$i])->format('H:i:s');
+                $formattedDate = Carbon::createFromFormat('Y-m-d', $dates[$i])->format('Y-m-d');
 
-            $reminders[] = $remainder;
-            $responseMessages[] = "Reminder for type '{$types[$i]}' and date '{$dates[$i]}' has been added successfully.";
+                // Fetch the audio file for the current reminder
+                $audio = AudioUpload::find($audioIds[$i]);
+
+                if (!$audio) {
+                    $responseMessages[] = "Audio with ID {$audioIds[$i]} not found.";
+                    continue; 
+                }
+
+                // Check if a reminder already exists for this combination
+                $existingReminder = Remainder::where('user_id', $user->id)
+                    ->where('type', $types[$i])
+                    ->where('date', $formattedDate)
+                    ->where('time', $formattedTime)
+                    ->first();
+
+                if ($existingReminder) {
+                    $responseMessages[] =  ucfirst($types[$i]) . " reminder already exists.";
+                    continue; // Skip this iteration
+                }
+
+                // Create a new reminder entry
+                $reminder = new Remainder();
+                $reminder->user_id = $user->id;
+                $reminder->audio = $audio->id;
+                $reminder->type = $types[$i];
+                $reminder->date = $formattedDate;
+                $reminder->time = $formattedTime;
+                $reminder->save();
+
+                $responseMessages[] = ucfirst($types[$i]) . " reminder has been added.";;
+            }
+
+            DB::commit();
+            $concatenatedMessages = implode(' ', $responseMessages);
+            // Return success with all messages
+            return response()->json([
+                'status' => 200,
+                'message' =>  $concatenatedMessages,
+               // 'data' => $concatenatedMessages,
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while adding or updating the reminder.',
+                'data' => $e->getMessage(),
+            ], 500);
         }
-
-        DB::commit();
-
-        // Return success with all messages
-        return $this->success([
-            'status' => 200,
-            'messages' => $responseMessages,  // Return an array of messages
-
-        ], 'Reminders added successfully.', 200);
-
-    } catch (Exception $e) {
-        DB::rollBack();
-        return $this->error('An error occurred while adding or updating the reminder.', $e->getMessage());
     }
-}
+    
+    
     
     
 
     //show remainder-List  by user
 
     public function remainderList()
-    {
+{
+    try {
+        $user = auth()->user();
 
-        try {
-            $user = auth()->user();
-
-            if (!$user) {
-                return $this->error(('User not found'), 404);
-            }
-
-            $remainders = Remainder::where('user_id', $user->id)->with('audio:id,audio')->select('id', 'type', 'date', 'time', 'audio')->get();
-
-            if ($remainders->isEmpty()) {
-                return $this->error('Remainder not found', 404);
-            }
-
+        if (!$user) {
             return response()->json([
-                'status' => 200,
-                'message' => 'Remainder List has been fetched successfully',
-                'data' => [
-                    'remainders' => $remainders,
-                ]
-            ], 200);
-        } catch (Exception $e) {
-            return $this->error('Something went wrong', 500);
+                'status' => false,
+                'message' => 'User not found.',
+            ], 404);
         }
+
+        // Fetch reminders and sort them by date and time
+        $remainders = Remainder::where('user_id', $user->id)
+            ->with('audio:id,audio')
+            ->select('id', 'type', 'date', 'time', 'audio')
+            ->orderBy('date', 'asc')
+            ->orderBy('time', 'asc')
+            ->get();
+
+        if ($remainders->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No reminders found.',
+            ], 404);
+        }
+
+        $now = Carbon::now(); // Current date and time
+        $remainingTimes = []; // Store remaining times
+
+        foreach ($remainders as $remainder) {
+            $reminderDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $remainder->date . ' ' . $remainder->time);
+            
+            if ($reminderDateTime->greaterThan($now)) {
+                $remainingTime = $reminderDateTime->diffForHumans($now, [
+                    'syntax' => Carbon::DIFF_ABSOLUTE,
+                ]);
+                $remainingTimes[] = [
+                    'type' => ucfirst($remainder->type),
+                    'remaining_time' => $remainingTime,
+                    'time' => $reminderDateTime->format('g:i A'),
+                ];
+            }
+        }
+
+        // Check for the next reminder
+        $nextReminder = collect($remainingTimes)->first();
+
+        if (!$nextReminder) {
+            $nextReminder = [
+                'type' => 'No upcoming reminders today',
+                'remaining_time' => 'N/A',
+                'time' => 'N/A',
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Reminders fetched successfully.',
+            'next_reminder' => $nextReminder,
+            'data' => [
+                'remainders' => $remainders,
+                
+            ],
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
 
     //Edit remainder-list by user
