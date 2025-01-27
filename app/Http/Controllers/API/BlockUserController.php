@@ -7,6 +7,8 @@ use App\Models\BlockUser;
 use App\Traits\apiresponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Exception;
+use App\Models\NewsFeed;
 
 class BlockUserController extends Controller
 {
@@ -55,4 +57,31 @@ class BlockUserController extends Controller
         }
         
     }
+
+      /**
+     * Newsfeed
+     * @return \Illuminate\Http\JsonResponse
+     * @param Newsfeed 
+     */
+
+
+     public function newsfeed()
+     {
+         try {
+             $newsfeed = NewsFeed::all('title', 'description', 'location', 'image');
+             return response()->json([
+                 'status' => 200,
+                 'message' => 'Newsfeed fetched successfully',
+                 'data' => [
+                     'newsfeed' => $newsfeed
+                 ]
+                ]);
+         } catch (\Throwable $th) {
+             return response()->json([
+                 'status' => 500,
+                 'message' => $th->getMessage(),
+             ]);
+         }
+
+     }
 }

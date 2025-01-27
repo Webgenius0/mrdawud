@@ -25,6 +25,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin','instructor','user'])->default('user');
+            $table->string('user_payment_methoad_id')->nullable();
             $table->string('status', 30)->default('active');
             $table->string('otp')->nullable();
             $table->string('otp_created_at')->nullable();

@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\API\instructor;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\apiresponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\FavouriteTeacher;
+use App\Models\Support;
+
 
 class InstructorListController extends Controller
 {
@@ -127,5 +129,66 @@ class InstructorListController extends Controller
     
         return response()->json(['message' => 'Teacher remove from favorites']);
     }
+
+    //support message 
+    public function supportMessage(Request $request)
+    {
+        // Get the authenticated user
+        $user = auth()->user();
+        
+        // Check if the user exists
+        if (!$user) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'User not found',
+            ]);
+        }
+    
+        // Set dynamic validation rules based on the user's role
+        $phoneRule = $user->role == 'instructor' ? 'required|string' : 'nullable|string';
+    
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => $phoneRule, // Apply the dynamic rule for phone
+            'message' => 'required|string',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'message' => $validator->errors()->first(),
+                'data' => $validator->errors(),
+            ]);
+        }
+    
+        DB::beginTransaction();
+        try {
+           
+            // Create and save the support message
+            $infromation = new Support();
+            $infromation->user_id = $user->id;
+            $infromation->name = $request->name;
+            $infromation->email = $request->email;
+            $infromation->phone = $request->phone;
+            $infromation->message = $request->message;
+            $infromation->save();
+    
+            DB::commit();
+            return response()->json([
+                'status' => 200,
+                'message' => 'Message sent successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong while sending the message.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
     
 }

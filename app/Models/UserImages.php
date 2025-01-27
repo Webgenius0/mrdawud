@@ -20,4 +20,6 @@ class UserImages extends Model
     {
         return $this->belongsTo(FavouriteTeacher::class,'teacher_id');
     }
+    
+    
 }

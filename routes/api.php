@@ -281,6 +281,8 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::get('block/users', 'index');
         Route::post('block/user/{user}', 'blockUser');
         Route::delete('unblock/user/{user}', 'unblockUser');
+        //newsfeed
+        Route::get('newsfeed-list', 'newsfeed');
     });
 
 
@@ -300,6 +302,9 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('/favourite-teacher/{id}', 'favouriteTeacher');
         Route::get('/show-favourite-teacher', 'showFavouriteTeacher');
         Route::post('/delete-favourite-teacher/{id}', 'deleteFavouriteTeacher');
+
+        //support message
+        Route::post('/support-message', 'supportMessage');
     });
 
     /**
@@ -310,8 +315,17 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('/address-store', 'store');
         Route::post('/address-update/{id}', 'update');
         Route::post('/address-delete/{id}', 'destroy');
+
+        //order list
+        Route::get('/order-list', 'showOrderList');
     });
 
+    /**
+     * Order Checkout
+     */
+    Route::controller(StripePaymentController::class)->group(function () {
+        Route::post('/order-checkout', 'orderChockout');
+    });
     /**
      * Add stripe card
      */
