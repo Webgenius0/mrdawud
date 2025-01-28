@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\apiresponse;
 use App\Models\Order;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class BillingAddressController extends Controller
 {
@@ -155,55 +157,76 @@ class BillingAddressController extends Controller
     }
 
     //show user order list 
-   public function showOrderList()
-{
-    try {
-        $user = auth()->user(); // Get the authenticated user
-        if (!$user) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'User not found',
-            ]);
-        }
-    
-        // Fetch the orders for the authenticated user, joining with the users table to get the username
-        $orderList = Order::select('orders.id', 'orders.product_name','users.username', 'orders.quantity', 'orders.sub_total', 'orders.tax', 'orders.status', 'orders.created_at') // Select fields from both tables
-                          ->join('users', 'users.id', '=', 'orders.user_id') // Join with the users table
-                          ->where('orders.user_id', $user->id)
-                          ->get();
-    
-        if ($orderList->isEmpty()) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Order list not found',
-            ]);
-        }
-    
-        $orderList->transform(function ($order) {
-            if ($order->status === 'ongoing') {
-                $order->status_message = 'Order is being processed';
-            } elseif ($order->status === 'completed') {
-                $order->status_message = 'Product collected';
-            } elseif ($order->status === 'canceled') {
-                $order->status_message = 'Your order request has been cancelled';
-            } else {
-                $order->status_message = 'Unknown status'; // Optional, in case there are other status types
+    public function showOrderList()
+    {
+        try {
+            $user = auth()->user(); // Get the authenticated user
+            if (!$user) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'User not found',
+                ]);
             }
     
-            return $order;
-        });
+            // Fetch the orders for the authenticated user, joining with the users and order_items tables
+            $orderList = Order::select(
+                    'orders.id', 
+                    'users.username',  
+                    'products.title as product_name',  // Fetch product title from products table
+                    'orders.sub_total', 
+                    'orders.tax', 
+                    'orders.status', 
+                    'orders.created_at'
+                )
+                ->join('users', 'users.id', '=', 'orders.user_id') // Join with the users table
+                ->leftJoin('order_items', 'order_items.order_id', '=', 'orders.id') // Join with order_items table
+                ->leftJoin('products', 'products.id', '=', 'order_items.product_id') // Join with products table
+                ->where('orders.user_id', $user->id) // Ensure we're fetching orders for the authenticated user
+                ->get();
     
-        return response()->json([
-            'status' => 200,
-            'message' => 'Order list fetched successfully',
-            'data' => $orderList,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 500,
-            'message' => $e->getMessage(),
-        ]);
+            // Log the fetched order list for debugging
+            Log::info('Fetched order list: ', $orderList->toArray());
+    
+            if ($orderList->isEmpty()) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Order list not found',
+                ]);
+            }
+    
+            // Transform the order list to include status messages and formatted date
+            $orderList->transform(function ($order) {
+                if ($order->status === 'ongoing') {
+                    $order->status_message = 'Order is being processed';
+                } elseif ($order->status === 'completed') {
+                    $order->status_message = 'Product collected';
+                } elseif ($order->status === 'canceled') {
+                    $order->status_message = 'Your order request has been cancelled';
+                } else {
+                    $order->status_message = 'Unknown status'; // Optional, in case there are other status types
+                }
+    
+                // Ensure the created_at date is properly formatted
+                if ($order->created_at) {
+                    $order->created_at = \Carbon\Carbon::parse($order->created_at)->format('j F Y');
+                }
+    
+                return $order;
+            });
+    
+            return response()->json([
+                'status' => 200,
+                'message' => 'Order list fetched successfully',
+                'data' => $orderList,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching order list: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
     
-}
+    
 }

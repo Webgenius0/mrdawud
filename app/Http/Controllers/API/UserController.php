@@ -41,8 +41,7 @@ class UserController extends Controller
                 'description.*' => 'nullable|string',
                 'document' => 'nullable|array',
                 'document.*' => 'nullable|mimes:pdf,doc,docx|max:20000',
-                'image' => 'nullable|array',
-                'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Image validation for all users
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Single image validation
             ]);
         } else {
             $validation = Validator::make($request->all(), [
@@ -50,12 +49,11 @@ class UserController extends Controller
                 'language' => ['nullable', 'string', 'in:en,ar'],
                 'city' => ['nullable', 'string', 'max:50'],
                 'state' => ['nullable', 'string', 'max:50'],
-                'image' => 'nullable|array',
-                'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Image validation for all users
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Single image validation
                 'age' => ['nullable', 'integer', 'min:14'],
                 'phone' => ['nullable', 'string'],
                 'bio' => ['nullable', 'string'],
-                'country'=>['nullable','string'],
+                'country' => ['nullable', 'string'],
                 'lat' => ['nullable', 'string'],
                 'lng' => ['nullable', 'string'],
             ]);
@@ -84,37 +82,35 @@ class UserController extends Controller
                 'lng',
             ]));
     
-            // Handle image upload for all users (both regular users and instructors)
+            // Handle single image upload for all users
             if ($request->hasFile('image')) {
-                // Delete old images if they exist
-                foreach ($user->image as $oldImage) {
+                // Delete old image if it exists
+                $oldImage = $user->image()->first();
+                if ($oldImage) {
                     $oldFilePath = public_path($oldImage->image);
                     if (file_exists($oldFilePath)) {
                         unlink($oldFilePath);
                     }
+                    // Remove the old image record from the database
+                    $oldImage->delete();
                 }
     
-                // Remove any old image records from the database
-                $user->image()->delete(); 
-    
-                // Upload new images
-                $userImages = [];
-                foreach ($request->file('image') as $image) {
-                    $url = Helper::fileUpload($image, 'users', $user->username . "-" . uniqid() . "-" . time());
-                    if (!$url) {
-                        return $this->error([], "Failed to upload image", 500); // Error if URL is empty
-                    }
-                    $userImages[] = ['image' => $url];
+                // Upload the new image
+                $newImage = $request->file('image');
+                $url = Helper::fileUpload($newImage, 'users', $user->username . "-" . uniqid() . "-" . time());
+                if (!$url) {
+                    return $this->error([], "Failed to upload image", 500); // Error if URL is empty
                 }
     
-                // Save new images to the database
-                $user->image()->createMany($userImages);
+                // Save the new image record in the database
+                $user->image()->create(['image' => $url]);
             }
     
             // Handle instructor-specific files (video, document)
             if ($user->role === 'instructor') {
                 $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
                 $user->update($validated);
+    
                 // Video upload
                 if ($request->hasFile('video')) {
                     $titles = $request->title ?? [];
@@ -168,10 +164,6 @@ class UserController extends Controller
                     $user->documents()->delete();
                     $user->documents()->createMany($userDocuments);
                 }
-                if($request->role==='instructor'){
-                    
-                }
-                $user->update($validated);
             }
     
             // Commit the transaction
@@ -185,6 +177,8 @@ class UserController extends Controller
             return $this->error([], $e->getMessage(), 400);
         }
     }
+    
+    
     
 
     /**

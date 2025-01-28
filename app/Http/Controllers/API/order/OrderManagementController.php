@@ -137,10 +137,13 @@ class OrderManagementController extends Controller
      */
     private function storeOrderData($validateData, $sub_total, $request)
     {
+        $product = Product::find($validateData['products'][0]['product_id']);
+        $taxes = $product ? $product->taxes : 0; 
         return Order::create([
             'uuid' => substr((string) Str::uuid(), 0, 8),
             'user_id' => auth()->id(),
             'sub_total' => $sub_total,
+            'tax' => $taxes,
             'status' => 'ongoing',
             'total_price' => $request->input('total'),  // Store the total price provided in the request
         ]);
