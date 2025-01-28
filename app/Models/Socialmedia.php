@@ -6,7 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SocialMedia extends Model
+class Socialmedia extends Model
 {
     protected $guarded = [];  
 

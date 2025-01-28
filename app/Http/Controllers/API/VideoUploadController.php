@@ -17,83 +17,79 @@ use Illuminate\Support\Facades\Storage;
 class VideoUploadController extends Controller
 {
     use apiresponse;
-    public function uploadVideo(Request $request)
-
-{
-    // Validate the incoming request
-    $validator = Validator::make($request->all(), [
-        'video' => 'required|array|max:5',
-        'video.*' => 'mimes:mp4,avi,mov,mkv|max:20000', 
-        'title' => 'required|array|max:5',
-        'title.*' => 'required|string|max:255', 
-        'description' => 'required|array|max:5', 
-        'description.*' => 'required|string', 
-    ]);
-
-    if ($validator->fails()) {
-        return $this->error('Validation Error.', $validator->errors());
-    }
-
-    $user = auth()->user();
-  
-   if (!$user || $user->role !== 'instructor') {
-    return response()->json(['message' => 'User not found or user not authorized.'], 404);
-}
     
-    DB::beginTransaction();
-
-    try {
-        $videos = $request->file('video'); 
-        $titles = $request->title; 
-        $descriptions = $request->description; 
-
+    public function uploadVideo(Request $request)
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'video' => 'required|array|max:5', // Multiple videos allowed
+            'video.*' => 'mimes:mp4,avi,mov,mkv|max:20000', 
+            'title' => 'required|string|max:255', // Single title for all videos
+            'description' => 'required|string', // Single description for all videos
+        ]);
+    
+        if ($validator->fails()) {
+            return $this->error('Validation Error.', $validator->errors());
+        }
+    
         $user = auth()->user();
-        $responseMessages = [];
-
-        // Ensure that the arrays for title, description, and video all have the same number of elements
-        if (count($titles) !== count($descriptions) || count($titles) !== count($videos)) {
-            return $this->error('The number of videos, titles, and descriptions must be the same.');
+    
+        // Check if the user is an instructor
+        if (!$user || $user->role !== 'instructor') {
+            return response()->json(['message' => 'User not found or user not authorized.'], 404);
         }
-
-        // Iterate through each video, title, and description and upload them
-        foreach ($titles as $index => $title) {
-            $description = $descriptions[$index];
-            $video = $videos[$index];
-
-            
-            $videoPath = Helper::videoUpload($video, 'videos', $title);
-
-            // Check if video already exists
-            $existingVideo = VideoUpload::where('title', $title)->first();
-
+    
+        DB::beginTransaction();
+    
+        try {
+            $videos = $request->file('video'); 
+            $title = $request->title;  
+            $description = $request->description; 
+            $responseMessages = [];
+    
            
-            if ($existingVideo) {
-                continue;
+            if (count($videos) == 0) {
+                return $this->error('At least one video is required.');
             }
- 
-            $videoRecord = new VideoUpload();
-            $videoRecord->title = $title;
-            $videoRecord->description = $description;
-            $videoRecord->video = $videoPath;
-            $videoRecord->user_id = $user->id;
-            $videoRecord->save();
-
-            // Add success message for this video
-            $responseMessages[] = "Video with title '{$title}' has been added successfully.";
+    
+            // Iterate through each video and upload it
+            foreach ($videos as $video) {
+    
+                
+                $originalFilename = $video->getClientOriginalName();
+    
+                // Generate a unique filename using the user's username, uniqid, and original filename
+                $uniqueFilename = $user->username . '_' . uniqid() . '_' . $originalFilename;
+    
+                // Upload the video with the unique filename
+                $videoPath = Helper::videoUpload($video, 'videos', $uniqueFilename);
+    
+                // Create a new video record in the database
+                $videoRecord = new VideoUpload();
+                $videoRecord->title = $title; 
+                $videoRecord->description = $description; 
+                $videoRecord->video = $videoPath; 
+                $videoRecord->user_id = $user->id;
+                $videoRecord->save();
+    
+                // Add success message for this video
+                $responseMessages = "Video has been added successfully.";
+            }
+    
+            DB::commit();
+    
+            // Return success response with messages
+            return $this->success([
+                'messages' => $responseMessages,
+            ], 'Videos added successfully.', 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $this->error('An error occurred while adding the video(s).', $e->getMessage());
         }
-
-        DB::commit();
-
-        // Return success response
-        return $this->success([
-            'messages' => $responseMessages,
-            
-        ], 'Videos added successfully.', 200);
-    } catch (Exception $e) {
-        DB::rollBack();
-        return $this->error('An error occurred while adding the video(s).', $e->getMessage());
     }
-}
+
+
+    
 
 // show all videos
 public function showVideo()
@@ -121,54 +117,68 @@ public function showVideo()
 
 public function editVideo(Request $request, $id)
 {
+   
     $validator = Validator::make($request->all(), [
         'video' => 'nullable|mimes:mp4,avi,mov,mkv|max:20000',
         'title' => 'required|string|max:255',
         'description' => 'required|string',
     ]);
 
-    if($validator->fails())
-    {
+    if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 400);
     }
 
     $user = auth()->user();
-    if(!$user && $user->role !=='instructor')
-    {
+    if (!$user || $user->role !== 'instructor') {
         return response()->json(['message' => 'User not found or user not authorized.'], 404);
     }
 
-   try {
-    $video = VideoUpload::where('user_id', $user->id)->find($id);
+    DB::beginTransaction();  
 
-    if (!$video) {
-        return response()->json(['message' => 'Video not found.'], 404);
-    }
+    try {
+        // Find the video by user id and video id
+        $video = VideoUpload::where('user_id', $user->id)->find($id);
 
-    $video->title = $request->title;
-    $video->description = $request->description;
+        if (!$video) {
+            return response()->json(['message' => 'Video not found.'], 404);
+        }
 
-    if ($request->hasFile('video')) {
-            //delete old video file 
+        
+        $video->title = $request->title;
+        $video->description = $request->description;
+
+        // If new video file is uploaded, process it
+        if ($request->hasFile('video')) {
+            // Delete old video file if it exists
             if ($video->video) {
                 Helper::videoDelete($video->video);
             }
 
-        $videoPath = Helper::videoUpload($request->file('video'), 'videos', $request->title);
-        $video->video = $videoPath;
+            $originalFilename = $request->file('video')->getClientOriginalName();
+
+            $username = $user->username; 
+            $uniqueFilename = $username . '_' . uniqid() . '_' . $originalFilename;
+
+            // Upload the video with the new unique filename
+            $videoPath = Helper::videoUpload($request->file('video'), 'videos', $uniqueFilename);
+            $video->video = $videoPath; // Update video path
+        }
+
+        $video->save();  
+        DB::commit();  
+
+        
+        return response()->json([
+            'message' => 'Video updated successfully.',
+            'video' => $video
+        ]);
+    } catch (Exception $e) {
+        DB::rollBack();  
+        return response()->json(['message' => 'An error occurred while updating the video.', 'error' => $e->getMessage()], 400);
     }
-   
-    $video->save();
-    DB::commit();
-    return response()->json([
-        'message' => 'Video updated successfully.',
-        'video' => $video
-    ]); 
-   } catch (Exception $e) {
-    DB::rollBack();
-    return response()->json(['message' => 'An error occurred while updating the video.'], 400);
-   }
 }
+
+
 // delete video
 public function deleteVideo($id)
 {
@@ -194,5 +204,6 @@ public function deleteVideo($id)
         return response()->json(['message' => 'An error occurred while deleting the video.'], 400);
     }       
 }
+
 
 }

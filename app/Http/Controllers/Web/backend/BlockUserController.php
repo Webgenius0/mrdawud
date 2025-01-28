@@ -13,9 +13,9 @@ class BlockUserController extends Controller
 {
     public function index(Request $request)
     {
+      
         if ($request->ajax()) {
-           //data = User::where('role', 'user')->with(['blockuser', 'reportuser.reported_user'])->latest();
-           // $data = BlockUser::with(['blocked_user', 'blocked_user.reportuser'])->get();
+           
            $data = User::where('role', 'user')
             ->with(['blockuser.blocked_user']) 
             ->whereHas('blockuser') 
@@ -61,10 +61,32 @@ class BlockUserController extends Controller
 
 
     public function show($id)
-    {
-        $user=BlockUser::find($id);
-    
-        $report=ReportUser::where('reported_user_id',$user->blocked_user_id)->get();
-        return view('backend.layout.blockuser.show',compact('user','report'));
+{
+    // Fetch BlockUser
+    $user = BlockUser::find($id);
+
+    // Check if BlockUser is found
+    if (!$user) {
+        abort(404, 'User not found');
     }
+
+    // Get the associated User and the User's image
+    $userImage = $user->user->image; // This assumes the relationship is set up correctly
+
+    // You can check for null to handle cases where the user has no image
+    if (!$userImage) {
+        $imagePath = 'uploads/users/avatar.jpg'; // Fallback image
+    } else {
+        $imagePath = $userImage->image; // The actual image path from user_image table
+    }
+
+    // Load blocked user (if necessary)
+    $blockedUser = $user->blocked_user;
+
+    // Fetch report data
+    $report = ReportUser::where('reported_user_id', $user->blocked_user_id)->get();
+
+    return view('backend.layout.blockuser.show', compact('user', 'report', 'blockedUser', 'imagePath'));
+}
+
 }

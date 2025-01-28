@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserAuthController extends Controller
@@ -27,6 +28,7 @@ class UserAuthController extends Controller
     public function register(Request $request)
     {
         // Validate incoming request
+        //dd($request->all());
         $validator = Validator::make($request->all(), [
             'username' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email','confirmed'],
@@ -40,8 +42,9 @@ class UserAuthController extends Controller
             'phone' => ['nullable', 'string'],
             'bio' => ['nullable', 'string'],
             'role' => ['required', 'string', 'in:user,instructor'],
-            'lat' => ['nullable', 'numeric'],
-            'lng' => ['nullable', 'numeric'],
+            'lat' => ['nullable', 'string'],
+            'lng' => ['nullable', 'string'],
+            'country'=>['nullable','string'],
         ]);
 
         if ($validator->fails()) {
@@ -64,8 +67,10 @@ class UserAuthController extends Controller
                 'role',
                 'lat',
                 'lng',
+                'country',
             ]);
 
+            Log::info($request->role);
             $validated['password'] = bcrypt($validated['password']);
             if($request->role === 'instructor')
             {
@@ -77,7 +82,7 @@ class UserAuthController extends Controller
             if ($request->hasFile('images')) {
                 $userImages = [];
                 foreach ($request->file('images') as $image) {
-                    $url = Helper::fileUpload($image, 'users', $user->username . "-" . time());
+                    $url = Helper::fileUpload($image, 'users', $user->username . "-" . uniqid() . '.' . $image->getClientOriginalExtension());
                     array_push($userImages, [
                         'image' => $url,
                     ]);

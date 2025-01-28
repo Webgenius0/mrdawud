@@ -41,6 +41,7 @@ class User extends Authenticatable implements JWTSubject
         'role',
         'lat',
         'lng',
+        'country',
     ];
 
     /**
@@ -133,10 +134,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(VideoUpload::class);
     }
 
-    public function image()
-    {
-        return $this->hasMany(UserImages::class);
-    }
+   
 
     public function documents()
     {
@@ -154,12 +152,32 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(BlockUser::class, 'blocked_user_id');
     }
-//social Media
+    //social Media
     public function socialmedia()
     {
-        return $this->hasMany(SocialMedia::class);
+        return $this->hasMany(Socialmedia::class);
     }
 
+    public function favouriteTeachers()
+    {
+        return $this->belongsToMany(User::class, 'favourite_teachers', 'user_id', 'teacaher_id');
+    }
 
+    // A user can be favourited by many users as an instructor
+    public function favouredByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favourite_teachers', 'teacher_id', 'user_id');
+    }
+
+    public function order()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+   // In App\Models\User.php
+    public function image()
+    {
+        return $this->hasOne(UserImages::class, 'user_id', 'id');
+    }
 
 }

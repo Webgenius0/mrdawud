@@ -65,11 +65,20 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user=User::find($id);
-        $user->load('reportuser.reported_user');
-        //dd($user);
-        return view('backend.layout.user.show',compact('user'));
+        // Fetch the User by ID
+        $user = User::find($id);
+    
+        if (!$user) {
+            abort(404, 'User not found');
+        }     
+        $userImage = $user->image;       
+        $imagePath = $userImage ? $userImage->image : 'uploads/users/avatar.jpg';
+  
+        $user->load('reportuser.reported_user');  
+        return view('backend.layout.user.show', compact('user', 'imagePath'));
     }
+    
+    
 
     /**
      * Change the status of the specified resource.

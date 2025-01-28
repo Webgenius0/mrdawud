@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use Exception;
-use App\Models\SocialMedia;
+use App\Models\Socialmedia;
 use App\Traits\apiresponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

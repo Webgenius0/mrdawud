@@ -2,21 +2,29 @@
 
 use App\Http\Controllers\Api\backend\Auth;
 use App\Http\Controllers\API\product\ProductController;
-
+use App\Http\Controllers\API\instructor\InstructorListController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserAuthController;
 use App\Http\Controllers\API\MessagingController;
 use App\Http\Controllers\API\RemainderController;
 use App\Http\Controllers\API\SocialmediaController;
 use App\Http\Controllers\API\VideoUploadController;
+use App\Http\Controllers\API\audioupload\AudioUploadController;
 use App\Http\Controllers\API\instructor\DocumentController;
 use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\BlockUserController;
 use App\Http\Controllers\API\ReportUserController;
+use App\Http\Controllers\API\addTocart\AddToCartController;
+use App\Http\Controllers\API\Frontend\OrderManagement;
+use App\Http\Controllers\API\order\OrderManagementController;
+use App\Http\Controllers\API\stripe\BillingAddressController;
+use App\Http\Controllers\API\stripe\StripePaymentController;
+use App\Http\Controllers\API\stripe\StripeCardController;
 
 
 use App\Models\BlockUser;
 use Illuminate\Support\Facades\Route;
+use Stripe\Stripe;
 
 Route::controller(UserAuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -198,9 +206,16 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::post('/edit-video/{id}', 'editVideo');
         Route::post('/delete-video/{id}', 'deleteVideo');
     });
+    //Audio Upload
+    Route::controller(AudioUploadController::class)->group(function () {
+        Route::post('audio-upload', 'audioUpload');
+        Route::get('/show-audio', 'showAudio');
+        Route::post('/edit-audio/{id}', 'updateAudio');
+        Route::post('/delete-audio/{id}', 'deleteAudio');
+    });
     //Reminder
     Route::controller(RemainderController::class)->group(function () {
-        Route::post('reminder-add', 'remainder');
+        Route::post('reminder-add', 'uploadReminder');
         Route::get('remainder-list', 'remainderList');
         Route::post('remainder-edit/{id}', 'remainderEdit');
         Route::post('remainder-delete/{id}', 'remainderDelete');
@@ -224,6 +239,16 @@ Route::group(['middleware' => ['jwt.verify']], function () {
      Route::controller(ProductController::class)->group(function () {
 
         Route::get('/show-product', 'showProduct');
+
+     });
+     //add to Cart
+     Route::controller(AddToCartController::class)->group(function () {
+
+        Route::post('/add-and-update/{id}', 'addToCart');
+        Route::post('/decrease-quantity/{id}', 'decreaseQuantity');
+        Route::get('/cart-list', 'cartList');   
+        Route::delete('/remove-cart/{id}', 'removeCart');
+        Route::delete('/clear-cart', 'clearCart');
 
      });
 
@@ -258,6 +283,8 @@ Route::group(['middleware' => ['jwt.verify']], function () {
         Route::get('block/users', 'index');
         Route::post('block/user/{user}', 'blockUser');
         Route::delete('unblock/user/{user}', 'unblockUser');
+        //newsfeed
+        Route::get('newsfeed-list', 'newsfeed');
     });
 
 
@@ -267,5 +294,57 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::controller(ReportUserController::class)->group(function () {
         Route::get('report/users', 'index');
         Route::post('report/user/{user}', 'reportUser');
+    });
+
+     /**
+     * Instructor List
+     */
+    Route::controller(InstructorListController::class)->group(function () {
+        Route::get('/instructor-list', 'index');
+        Route::post('/favourite-teacher/{id}', 'favouriteTeacher');
+        Route::get('/show-favourite-teacher', 'showFavouriteTeacher');
+        Route::post('/delete-favourite-teacher/{id}', 'deleteFavouriteTeacher');
+
+        //support message
+        Route::post('/support-message', 'supportMessage');
+    });
+
+    /**
+     * Billing Address
+     */
+    Route::controller(BillingAddressController::class)->group(function () {
+        Route::get('/address-list', 'index');
+        Route::post('/address-store', 'store');
+        Route::post('/address-update/{id}', 'update');
+        Route::post('/address-delete/{id}', 'destroy');
+
+        //order list
+        Route::get('/order-list', 'showOrderList');
+    });
+
+    /**
+     * Order Checkout
+    
+     */
+    Route::controller(OrderManagementController::class)->group(function(){
+          Route::post('/order-checkout', 'orderCheckout');
+    });
+
+    Route::controller(StripePaymentController::class)->group(function () {
+      
+        Route::post('/add/stripe/customer/payment-method', 'addMethodToCustomer');
+        Route::get('/get/stripe/customer/payment-method', 'getCustomerPaymentMethods');
+        Route::delete('/remove/stripe/customer/payment-method/{paymentMethodID}', 'removeCustomerPaymentMethod');
+    });
+    /**
+     * Add stripe card
+     */
+    Route::controller(StripeCardController::class)->group(function () {
+        Route::get('/card-list', 'index');
+        Route::post('/add-card', 'storeCard');
+    });
+
+    Route::controller(StripePaymentController::class)->group(function () {
+        Route::post('/payment', 'StripePayment');
     });
 });

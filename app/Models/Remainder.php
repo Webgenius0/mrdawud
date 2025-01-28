@@ -12,4 +12,9 @@ class Remainder extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function audio()
+    {
+        return $this->belongsTo(AudioUpload::class,'audio','id');
+    }
 }
