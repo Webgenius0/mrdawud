@@ -15,6 +15,8 @@ use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\BlockUserController;
 use App\Http\Controllers\API\ReportUserController;
 use App\Http\Controllers\API\addTocart\AddToCartController;
+use App\Http\Controllers\API\Frontend\OrderManagement;
+use App\Http\Controllers\API\order\OrderManagementController;
 use App\Http\Controllers\API\stripe\BillingAddressController;
 use App\Http\Controllers\API\stripe\StripePaymentController;
 use App\Http\Controllers\API\stripe\StripeCardController;
@@ -322,11 +324,17 @@ Route::group(['middleware' => ['jwt.verify']], function () {
 
     /**
      * Order Checkout
+    
      */
+    Route::controller(OrderManagementController::class)->group(function(){
+          Route::post('/order-checkout', 'orderCheckout');
+    });
+
     Route::controller(StripePaymentController::class)->group(function () {
-       // Route::post('/order-checkout', 'orderChockout');
+      
         Route::post('/add/stripe/customer/payment-method', 'addMethodToCustomer');
         Route::get('/get/stripe/customer/payment-method', 'getCustomerPaymentMethods');
+        Route::delete('/remove/stripe/customer/payment-method/{paymentMethodID}', 'removeCustomerPaymentMethod');
     });
     /**
      * Add stripe card

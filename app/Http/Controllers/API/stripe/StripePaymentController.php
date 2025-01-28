@@ -45,6 +45,7 @@ class StripePaymentController extends Controller
     */
     public function addMethodToCustomer(Request $request)
     {
+       // dd($request->all());
         $validator = Validator::make($request->all(), [
             'payment_method_id' => 'required|string',
         ]);
@@ -91,7 +92,7 @@ class StripePaymentController extends Controller
     {
         $user=auth()->user();
         $customerData = [
-            'name' => $user->name,
+            'name' => $user->username,
         ];
 
         if (!empty($user->email)) {
@@ -103,11 +104,8 @@ class StripePaymentController extends Controller
             $user->save();
         } else {
             $customer = Customer::retrieve($user->stripe_customer_id);
-            if (!$customer) {
-                $customer = Customer::create($customerData);
-                $user->stripe_customer_id = $customer->id;
-                $user->save();
-            }
+            $user->stripe_customer_id = $customer->id;
+            $user->save();
         }
         return $customer;
     }
@@ -159,7 +157,36 @@ class StripePaymentController extends Controller
          }
      }
      
+    /**
+     * Remove payment method
+     */
+public function removeCustomerPaymentMethod($paymentMethodID)
+{
+   try {
+    $user=auth()->user();
 
+    if($user->stripe_customer_id === null || empty($user->stripe_customer_id)){
+        return $this->sendError('No valid Stripe customer Id found.Please create a Stripe account to add payment methods.',(object)[],404);
+    }
+
+    $customer= Customer::retrieve($user->stripe_customer_id);
+    if(!$customer || empty($customer->id)){
+        return $this->sendError('Customer not found in Stripe.',(object)[],404);
+    }
+    //Retrieve the payment method by Id
+
+    $paymentMethod= \Stripe\PaymentMethod::retrieve($paymentMethodID);
+    //check if the payment method exists
+    if(!$paymentMethod || empty($paymentMethod->id)){
+        return $this->sendError('Payment method not found.',(object)[],404);
+    }
+
+   // $this->deleteSubscriptionAndCustomer();
+    $paymentMethod->detach();
+    return $this->sendResponse([],'Payment method removed Successfully.');
+   } catch (\Exception $e) {
+    return $this->sendError('An error occurredf:' .$e->getMessage(), [], 500);
+   }
 
 }
-
+}

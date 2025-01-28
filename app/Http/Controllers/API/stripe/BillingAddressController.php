@@ -167,7 +167,7 @@ class BillingAddressController extends Controller
         }
     
         // Fetch the orders for the authenticated user, joining with the users table to get the username
-        $orderList = Order::select('orders.id', 'orders.product_name','users.username', 'orders.quantity', 'orders.subtotal', 'orders.tax', 'orders.status', 'orders.created_at') // Select fields from both tables
+        $orderList = Order::select('orders.id', 'orders.product_name','users.username', 'orders.quantity', 'orders.sub_total', 'orders.tax', 'orders.status', 'orders.created_at') // Select fields from both tables
                           ->join('users', 'users.id', '=', 'orders.user_id') // Join with the users table
                           ->where('orders.user_id', $user->id)
                           ->get();
