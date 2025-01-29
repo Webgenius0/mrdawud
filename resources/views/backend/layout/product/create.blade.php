@@ -73,11 +73,23 @@
                                 <input type="text" id="stock" class="form-control"
                                     value="{{ old('stock') }}" placeholder="Produc Stock"
                                     name="stock" />
-                                @error('location')
+                                @error('stock')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
+
+                        <!-- <div class="col-md-6 col-12">
+                            <div class="form-group">
+                                <label for="location">Taxes</label>
+                                <input type="text" id="taxes" class="form-control"
+                                    value="{{ old('taxes') }}" placeholder="Product Taxes"
+                                    name="taxes" />
+                                @error('taxes')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div> -->
 
                         
 

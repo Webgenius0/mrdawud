@@ -84,6 +84,7 @@ public function cartList()
         
         return [
             'id' => $item->id,
+            'product_id' => $item->product_id,
             'product_name' => $item->product_name ?? null,
             'category' => $item->product_category ?? null,
             'quantity' => $item->quantity,

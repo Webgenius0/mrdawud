@@ -13,6 +13,8 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 
+use Illuminate\Support\Facades\Log;
+
 
 class ProductController extends Controller
 {
@@ -79,7 +81,7 @@ class ProductController extends Controller
      public function store(ProductRequest $request)
      {
        //dd($request->validated());
-        
+       Log::info('Validated Product Data:', $request->validated());
         try {
             $product = new Product();
             $product->title=$request->validated('title');
@@ -87,14 +89,16 @@ class ProductController extends Controller
             $product->slug=Str::slug($request->validated('title'));
             $product->price=$request->validated('price');
             $product->stock=$request->validated('stock');
+           // $product->taxes=$request->validated('taxes');
             if($request->hasFile('image'))
             {
                 $url = Helper::fileUpload($request->file('image'), 'product', $request->validated('title') . "-" . time());
                 $product->image = $url;
             }
            
-
+            
             $product->save();
+            Log::info('Product saved successfully', ['product_id' => $product->id, 'taxes' => $product->taxes]);
             return redirect()->route('admin.product.index')->with('t-success','Product created successfully');
         } catch (Exception $e) {
             return redirect()->route('admin.product.index')->with('t-error','Something went wrong');

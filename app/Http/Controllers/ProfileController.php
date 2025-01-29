@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\User;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Order;
 
 class ProfileController extends Controller
 {
@@ -56,5 +60,16 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function dashboard()
+    {
+
+        $user= User::count();
+        dd($user);
+        $product=Product::count();
+        $category=Category::count();
+        $order=Order::count();
+        return view('dashboard',compact('user','product','category','order'));
     }
 }

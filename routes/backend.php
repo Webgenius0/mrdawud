@@ -7,11 +7,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\backend\UserController;
 use App\Http\Controllers\Web\backend\SettingController;
 use App\Http\Controllers\Web\backend\admin\FAQController;
+use App\Http\Controllers\Web\backend\admin\OrderListController;
 use App\Http\Controllers\Web\backend\CategoryController;
 use App\Http\Controllers\Web\backend\ProductController;
 use App\Http\Controllers\Web\backend\settings\DynamicPagesController;
 use App\Http\Controllers\Web\backend\settings\ProfileSettingController;
 use App\Http\Controllers\Web\backend\BlockUserController;
+use App\Http\Controllers\Web\backend\settings\MailSettingsController;
 
 use App\Models\Product;
 
@@ -29,6 +31,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profile/update', 'updateProfile')->name('profile.update');
         Route::post('/profile/update/password', 'updatePassword')->name('profile.update.password');
         Route::post('/profile/update/profile-picture', 'updateProfilePicture')->name('profile.update.profile.picture');
+        //admin Dashboard
+        //Route::get('/dashboard', 'adminDashboard')->name('admin.dashboard');
     });
 
     Route::controller(UserController::class)->group(function () {
@@ -42,6 +46,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/block-user/{id}', 'blockUser')->name('block.user');
         Route::get('/view/block-user/{id}', 'show')->name('show.block.user');
         
+    });
+
+    //Order list
+
+    Route::controller(OrderListController::class)->group(function () {
+        Route::get('/order/list', 'index')->name('order.list');
+        Route::post('/orders/update-status', 'updateStatus')->name('orders.updateStatus');
+        Route::delete('/order/delete/{destroy}', 'destroy')->name('order.destroy');
     });
 
     Route::prefix('permissions')->controller(PremissionController::class)->group(function () {
@@ -92,6 +104,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('faq', FAQController::class);
     Route::post('faq/status/{id}', [FAQController::class, 'changeStatus'])->name('faq.status');
 
+    //mail settings
+    Route::controller(MailSettingsController::class)->group(function () {
+        Route::get('/mail/settings', 'index')->name('mail.settings');
+        Route::post('/mail/update', 'mailSettingUpdate')->name('mail.update');
+
+        Route::get('/stripe/settings', 'stripeSettings')->name('stripe.settings');
+        Route::get('/stripe/update', 'stripeSettingUpdate')->name('stripe.update');
+    });
 
 
 

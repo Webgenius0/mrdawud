@@ -28,81 +28,84 @@ class UserAuthController extends Controller
     public function register(Request $request)
     {
         // Validate incoming request
-        //dd($request->all());
         $validator = Validator::make($request->all(), [
             'username' => ['nullable', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email','confirmed'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', 'confirmed'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'language' => ['required', 'string', 'in:en,ar'],
             'city' => ['nullable', 'string', 'max:50'],
             'state' => ['nullable', 'string', 'max:50'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'], // Single image upload
             'age' => ['nullable', 'integer', 'min:14'],
             'phone' => ['nullable', 'string'],
             'bio' => ['nullable', 'string'],
-            'role' => ['required', 'string', 'in:user,instructor'],
             'lat' => ['nullable', 'string'],
             'lng' => ['nullable', 'string'],
-            'country'=>['nullable','string'],
+            'country' => ['nullable', 'string'],
         ]);
-
+    
         if ($validator->fails()) {
+            Log::error('Validation failed during registration.', ['errors' => $validator->errors()]);
             return $this->error([], $validator->errors(), 422);
         }
-
+    
         DB::beginTransaction();
-
+    
         try {
+            // Prepare user data
             $validated = $request->only([
-                'username',
-                'email',
-                'password',
-                'language',
-                'city',
-                'state',
-                'age',
-                'phone',
-                'bio',
-                'role',
-                'lat',
-                'lng',
-                'country',
+                'username', 'email', 'password', 'language', 'city', 'state', 
+                'age', 'phone', 'bio', 'lat', 'lng', 'country'
             ]);
-
-            Log::info($request->role);
+    
+            Log::info('Registering user...');
+    
             $validated['password'] = bcrypt($validated['password']);
+
             if($request->role === 'instructor')
             {
                 $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
             }
-           
+
             $user = User::create($validated);
-
-            if ($request->hasFile('images')) {
-                $userImages = [];
-                foreach ($request->file('images') as $image) {
-                    $url = Helper::fileUpload($image, 'users', $user->username . "-" . uniqid() . '.' . $image->getClientOriginalExtension());
-                    array_push($userImages, [
-                        'image' => $url,
-                    ]);
-                }
-                $user->images()->createMany($userImages);
+            Log::info('User created successfully:', ['user_id' => $user->id]);
+    
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+    
+                // Upload the image and get its URL
+                $url = Helper::fileUpload(
+                    $image, 
+                    'users', 
+                    $user->username . "-" . uniqid() . '.' . $image->getClientOriginalExtension()
+                );
+    
+                // Insert into the user_images table
+                $user->images()->create([
+                    'user_id' => $user->id,
+                    'image' => $url,
+                ]);
+    
+                Log::info('Image uploaded and saved to user_images:', ['user_id' => $user->id, 'image_url' => $url]);
             }
-
+    
+            // Generate OTP for the user
             $this->generateOtp($user);
             DB::commit();
+    
+            // Return success response
             return $this->success([
                 'user' => $user->only('id', 'username', 'email', 'language', 'phone'),
                 'token' => $this->respondWithToken(JWTAuth::fromUser($user)),
             ], 'Check your email to verify your account', 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error during registration:', ['exception' => $e->getMessage()]);
             return $this->error([], $e->getMessage(), 400);
         }
     }
-
+    
     public function login(Request $request)
     {
         //dd($request);
