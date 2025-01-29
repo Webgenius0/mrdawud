@@ -61,8 +61,12 @@ class UserAuthController extends Controller
             Log::info('Registering user...');
     
             $validated['password'] = bcrypt($validated['password']);
-    
-            // Create user
+
+            if($request->role === 'instructor')
+            {
+                $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
+            }
+
             $user = User::create($validated);
             Log::info('User created successfully:', ['user_id' => $user->id]);
     
