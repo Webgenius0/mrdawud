@@ -86,7 +86,7 @@
             </li>
 
 
-              <li class="nav-item {{ request()->routeIs('admin.product.*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.product.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('admin.product.index') }}">
                     <i data-feather="box"></i>
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
@@ -94,13 +94,25 @@
                     </span>
                 </a>
             </li>
-            {{-- <li class="nav-item">
-                <a class="d-flex align-items-center" href="{{ route('admin.location.list') }}">
-                    <i data-feather="grid"></i>
+
+
+            <li class="nav-item {{ request()->routeIs('order.list') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('order.list') }}">
+                <i data-feather="list"></i>
+
+
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
-                        Images
+                        Order List
                     </span>
                 </a>
+            </li>
+            {{-- <li class="nav-item">
+                <a class="d-flex align-items-center" href="{{ route('admin.location.list') }}">
+            <i data-feather="grid"></i>
+            <span class="menu-title text-truncate" data-i18n="ag-grid">
+                Images
+            </span>
+            </a>
             </li>
             <li class="nav-item">
                 <a class="d-flex align-items-center" href="{{ route('admin.location.list') }}">
@@ -119,17 +131,17 @@
                 </a>
             </li>
 
-            <li class="nav-item {{ request()->routeIs('index') ? 'active' : '' }}">
+            <!-- <li class="nav-item {{ request()->routeIs('index') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('index') }}">
                     <i data-feather="users"></i>
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
-                       Report
+                        Report
                     </span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item {{ request()->routeIs('faq.index') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('faq.index') }}">
-                <i data-feather="help-circle"></i>
+                    <i data-feather="help-circle"></i>
 
                     <span class="menu-title text-truncate" data-i18n="ag-grid">
                         FAQ
@@ -213,6 +225,40 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+
+            <!-- mail and stripe -->
+
+
+            <li class=" nav-item">
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa-solid fa-gear"></i>
+                    <span class="menu-title text-truncate" data-i18n="Charts">
+                        Mail Settiings
+                    </span>
+                </a>
+                <ul class="menu-content">
+                    <!-- Mail Settings Menu Item -->
+                    <li class="{{ request()->routeIs('mail.settings') ? 'active' : '' }}">
+                        <a class="d-flex align-items-center" href="{{ route('mail.settings') }}">
+                            <i data-feather="circle"></i>
+                            <span class="menu-item text-truncate" data-i18n="Apex">
+                                Mail
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- Stripe Settings Menu Item -->
+                    <li class="{{ request()->routeIs('stripe.settings') ? 'active' : '' }}">
+                        <a class="d-flex align-items-center" href="{{ route('stripe.settings') }}">
+                            <i data-feather="circle"></i>
+                            <span class="menu-item text-truncate" data-i18n="Chartjs">
+                                Stripe
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+
             </li>
         </ul>
     </div>

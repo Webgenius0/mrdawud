@@ -173,6 +173,8 @@ class BillingAddressController extends Controller
                     'orders.id', 
                     'users.username',  
                     'products.title as product_name',  // Fetch product title from products table
+                    'order_items.quantity',           // Fetch product quantity from order_items table
+                    'order_items.price as unite_price', // Fetch product price from order_items table
                     'orders.sub_total', 
                     'orders.tax', 
                     'orders.status', 
@@ -182,6 +184,7 @@ class BillingAddressController extends Controller
                 ->leftJoin('order_items', 'order_items.order_id', '=', 'orders.id') // Join with order_items table
                 ->leftJoin('products', 'products.id', '=', 'order_items.product_id') // Join with products table
                 ->where('orders.user_id', $user->id) // Ensure we're fetching orders for the authenticated user
+                ->orderBy('orders.created_at', 'desc') // Sort by created_at in descending order (latest order first)
                 ->get();
     
             // Log the fetched order list for debugging
@@ -194,8 +197,21 @@ class BillingAddressController extends Controller
                 ]);
             }
     
-            // Transform the order list to include status messages and formatted date
+            // Transform the order list to include status messages, formatted date, and calculated total prices
             $orderList->transform(function ($order) {
+                // Load order_items if it's not already loaded
+                $order->load('order_items');
+    
+                if ($order->order_items && $order->order_items->isNotEmpty()) {
+                    // Calculate quantity * price for each product
+                    $order->order_items->transform(function ($item) {
+                        $item->calculated_price = $item->quantity * $item->unite_price; // Calculate total price for the product
+                        $item->total_price_with_tax = $item->calculated_price + ($item->calculated_price * 0.10); // Assuming tax rate is 10%
+                        return $item;
+                    });
+                }
+    
+                // Add status message based on the order status
                 if ($order->status === 'ongoing') {
                     $order->status_message = 'Order is being processed';
                 } elseif ($order->status === 'completed') {
@@ -208,7 +224,7 @@ class BillingAddressController extends Controller
     
                 // Ensure the created_at date is properly formatted
                 if ($order->created_at) {
-                    $order->created_at = \Carbon\Carbon::parse($order->created_at)->format('j F Y');
+                    $order->created_at = \Carbon\Carbon::parse($order->created_at)->format('d-m-Y h:i A');
                 }
     
                 return $order;
@@ -227,6 +243,7 @@ class BillingAddressController extends Controller
             ]);
         }
     }
+    
     
     
 }

@@ -151,11 +151,12 @@ class RemainderController extends Controller
             ], 404);
         }
 
-        $now = Carbon::now(); // Current date and time
+        $now = Carbon::now('Asia/Dhaka'); // Current date and time in Dhaka time zone
         $remainingTimes = []; // Store remaining times
 
         foreach ($remainders as $remainder) {
-            $reminderDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $remainder->date . ' ' . $remainder->time);
+            // Make sure reminder time is in Asia/Dhaka timezone
+            $reminderDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $remainder->date . ' ' . $remainder->time, 'Asia/Dhaka');
             
             if ($reminderDateTime->greaterThan($now)) {
                 $remainingTime = $reminderDateTime->diffForHumans($now, [
@@ -186,7 +187,6 @@ class RemainderController extends Controller
             'next_reminder' => $nextReminder,
             'data' => [
                 'remainders' => $remainders,
-                
             ],
         ], 200);
 
