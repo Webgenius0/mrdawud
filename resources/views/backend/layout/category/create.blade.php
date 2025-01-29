@@ -25,7 +25,7 @@
                             <div class="form-group">
                                 <label for="title">Title</label>
                                 <input type="text" id="title" class="form-control"
-                                    value="{{ old('title') }}" placeholder="Category Title" name="title" />
+                                    value="{{ old('title') }}" placeholder="Category Title" name="title" required/>
                                 @error('title')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -36,7 +36,7 @@
                                 <label for="location">Location</label>
                                 <input type="text" id="location" class="form-control"
                                     value="{{ old('location') }}" placeholder="Category Location"
-                                    name="location" />
+                                    name="location" required />
                                 @error('location')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -46,7 +46,7 @@
                         <div class="col-md-4 col-12">
                             <div class="form-group">
                                 <label for="image">Featured Image</label>
-                                <input class="form-control dropify" accept="image/*" type="file" name="image">
+                                <input class="form-control dropify" accept="image/*" type="file" name="image" required>
                                 @error('image')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror

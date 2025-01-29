@@ -148,6 +148,28 @@
                     </span>
                 </a>
             </li>
+
+
+            <li class="nav-item {{ request()->routeIs('terms.and.conditions') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('terms.and.conditions') }}">
+                    <i data-feather="help-circle"></i>
+
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        Terms And Conditions
+                    </span>
+                </a>
+            </li>
+
+
+            <li class="nav-item {{ request()->routeIs('news.feed') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('news.feed') }}">
+                    <i data-feather="help-circle"></i>
+
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        News Feed
+                    </span>
+                </a>
+            </li>
             <li class=" navigation-header">
                 <span data-i18n="Charts &amp; Maps">
                     Settings
@@ -190,17 +212,17 @@
                             </span>
                         </a>
                     </li>
-                    <li class="{{ request()->routeIs('dynamicPages.index') ? 'active' : '' }}">
+                    <!-- <li class="{{ request()->routeIs('dynamicPages.index') ? 'active' : '' }}">
                         <a class="d-flex align-items-center" href="{{ route('dynamicPages.index') }}">
                             <i data-feather="circle"></i>
                             <span class="menu-item text-truncate" data-i18n="Chartjs">
                                 Dynamic Pages
                             </span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
-            <li class=" nav-item">
+            <!-- <li class=" nav-item">
                 <a class="d-flex align-items-center" href="#">
                     <i class="fa-solid fa-gear"></i>
                     <span class="menu-title text-truncate" data-i18n="Charts">
@@ -225,7 +247,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> -->
 
             <!-- mail and stripe -->
 

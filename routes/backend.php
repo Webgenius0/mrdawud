@@ -14,6 +14,8 @@ use App\Http\Controllers\Web\backend\settings\DynamicPagesController;
 use App\Http\Controllers\Web\backend\settings\ProfileSettingController;
 use App\Http\Controllers\Web\backend\BlockUserController;
 use App\Http\Controllers\Web\backend\settings\MailSettingsController;
+use App\Http\Controllers\Web\backend\admin\TermsAndConditionsController;
+use App\Http\Controllers\Web\backend\admin\NewsFeedController;
 
 use App\Models\Product;
 
@@ -24,7 +26,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/setting', 'adminSetting')->name('admin.setting');
         Route::post('/admin/setting/update', 'adminSettingUpdate')->name('admin.settingupdate');
     });
-
+    //terms and conditions
+    Route::controller(TermsAndConditionsController::class)->group(function () {
+        Route::get('/terms-and-conditions', 'index')->name('terms.and.conditions');
+        Route::post('/terms-and-conditions/update', 'storeOrUpdate')->name('terms.and.conditions.update');
+    });
+    //newsFeed
+    Route::controller(NewsFeedController::class)->group(function () {
+        Route::get('/news-feed', 'index')->name('news.feed');
+    });
     //profile Settings Controller
     Route::controller(ProfileSettingController::class)->group(function () {
         Route::get('/profile', 'index')->name('profile');

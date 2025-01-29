@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
+use App\Traits\FlashMessageTrait;
 
 use Illuminate\Support\Facades\Log;
 
@@ -80,31 +81,35 @@ class ProductController extends Controller
 
      public function store(ProductRequest $request)
      {
-       //dd($request->validated());
-       Log::info('Validated Product Data:', $request->validated());
-        try {
-            $product = new Product();
-            $product->title=$request->validated('title');
-            $product->category_id = $request->validated('category_id');
-            $product->slug=Str::slug($request->validated('title'));
-            $product->price=$request->validated('price');
-            $product->stock=$request->validated('stock');
-           // $product->taxes=$request->validated('taxes');
-            if($request->hasFile('image'))
-            {
-                $url = Helper::fileUpload($request->file('image'), 'product', $request->validated('title') . "-" . time());
-                $product->image = $url;
-            }
-           
-            
-            $product->save();
-            Log::info('Product saved successfully', ['product_id' => $product->id, 'taxes' => $product->taxes]);
-            return redirect()->route('admin.product.index')->with('t-success','Product created successfully');
-        } catch (Exception $e) {
-            return redirect()->route('admin.product.index')->with('t-error','Something went wrong');
-        }
+        // Log::info('Validated Product Data:', $request->validated());
+     
+         try {
+             $validatedData = $request->validated();
+     
+             $product = new Product();
+             $product->title = $validatedData['title'];
+             $product->category_id = $validatedData['category_id'];
+             $product->slug = Str::slug($validatedData['title']);
+             $product->taxes = $request->input('taxes', 0);// Ensure taxes is assigned
+             $product->price = $validatedData['price'];
+             $product->stock = $validatedData['stock'];
+     
+             if ($request->hasFile('image')) {
+                 $url = Helper::fileUpload($request->file('image'), 'product', $validatedData['title'] . "-" . time());
+                 $product->image = $url;
+             }
+     
+             $product->save();
+     
+             //Log::info('Product saved successfully', ['product_id' => $product->id, 'taxes' => $product->taxes]);
+             flash()->success('Product created successfully');
+             return redirect()->route('admin.product.index');
+         } catch (Exception $e) {
+            flash()->error($e->getMessage());
+             return redirect()->route('admin.product.index');
+         }
      }
-
+     
     /**
      * Edit the specified resource in storage.
      * @return View
@@ -137,6 +142,7 @@ class ProductController extends Controller
              $product->slug = Str::slug($request->validated()['title']);
              $product->price = $request->validated()['price'];
              $product->stock = $request->validated()['stock'];
+             $product->taxes = $request->input('taxes', 0); // Ensure taxes is assigned
              $product->category_id = $request->validated()['category_id'];
              
              // Handle image file upload if an image is provided
@@ -152,12 +158,13 @@ class ProductController extends Controller
      
              
              $product->save();  
-            
-             return redirect()->route('admin.product.index')->with('t-success', 'Product updated successfully');
+             flash()->success('Product updated successfully');
+             return redirect()->route('admin.product.index');
+
          } catch (Exception $e) {
              
-             dd($e->getMessage());  
-             return redirect()->route('admin.product.index')->with('t-error', 'Something went wrong');
+             flash()->error($e->getMessage());
+             return redirect()->route('admin.product.index');
          }
      }
      

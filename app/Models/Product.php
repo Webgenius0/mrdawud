@@ -8,7 +8,7 @@ class Product extends Model
 {
   protected $guarded=[];
 
-  protected $table = 'products';  // Ensure this is correct if the table name is not 'products'
+  //protected $table = 'products';  // Ensure this is correct if the table name is not 'products'
   protected $primaryKey = 'id';
     public function category()
     {

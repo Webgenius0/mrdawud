@@ -32,7 +32,7 @@
                                 <th>Image</th>
                                <th>Category</th>
                                 <th>Price</th>
-                               
+                               <th>Tax&Services</th>
                                 <th>Status</th>
                                  <th>Stock</th>
                                 <th>Action</th>
@@ -122,6 +122,16 @@
                                 name: 'price',
                                 orderable: false,
                                 searchable: false
+                                
+                            },
+                            {
+                                data: 'taxes',
+                                name: 'taxes',
+                                orderable: false,
+                                searchable: false,
+                                render: function(data, type, row) {
+                                    return data ? data + '%' : '0%'; 
+                                }
                             },
                             {
                                 data: 'status',
