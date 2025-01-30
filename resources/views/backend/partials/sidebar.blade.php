@@ -85,6 +85,14 @@
                 </a>
             </li>
 
+            <li class="nav-item {{ request()->routeIs('demo.category.list') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('demo.category.list') }}">
+                <i data-feather="tag"></i>
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                      Demo Category
+                    </span>
+                </a>
+            </li>
 
             <li class="nav-item {{ request()->routeIs('admin.product.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('admin.product.index') }}">
@@ -95,6 +103,9 @@
                 </a>
             </li>
 
+
+
+           
 
             <li class="nav-item {{ request()->routeIs('order.list') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('order.list') }}">
@@ -150,26 +161,7 @@
             </li>
 
 
-            <li class="nav-item {{ request()->routeIs('terms.and.conditions') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{ route('terms.and.conditions') }}">
-                    <i data-feather="help-circle"></i>
-
-                    <span class="menu-title text-truncate" data-i18n="ag-grid">
-                        Terms And Conditions
-                    </span>
-                </a>
-            </li>
-
-
-            <li class="nav-item {{ request()->routeIs('news.feed') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{ route('news.feed') }}">
-                    <i data-feather="help-circle"></i>
-
-                    <span class="menu-title text-truncate" data-i18n="ag-grid">
-                        News Feed
-                    </span>
-                </a>
-            </li>
+          
             <li class=" navigation-header">
                 <span data-i18n="Charts &amp; Maps">
                     Settings
@@ -281,6 +273,27 @@
                     </li>
                 </ul>
 
+                <li class="nav-item {{ request()->routeIs('terms.and.conditions') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('terms.and.conditions') }}">
+                    <i data-feather="help-circle"></i>
+
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        Terms And Conditions
+                    </span>
+                </a>
+            </li>
+
+
+            <li class="nav-item {{ request()->routeIs('news.feed') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('news.feed') }}">
+                <i data-feather="rss"></i>
+
+
+                    <span class="menu-title text-truncate" data-i18n="ag-grid">
+                        News Feed
+                    </span>
+                </a>
+            </li>
             </li>
         </ul>
     </div>

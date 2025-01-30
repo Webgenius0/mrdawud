@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helper\Helper;
+use App\Notifications\OrderNotification;
+
 class OrderListController extends Controller
 {
     public function index(Request $request)
@@ -21,6 +23,9 @@ class OrderListController extends Controller
 
                 ->addColumn('username', function ($data) {
                     return $data->user ? $data->user->username : 'Unknown';  // Ensure 'username' is accessed correctly
+                })
+                ->addColumn('stripe_customer_id', function ($data) {
+                    return $data->user ? $data->user->stripe_customer_id : 'Unknown';  // Ensure 'username' is accessed correctly
                 })
                 ->addColumn('product_name', function ($data) {
                     $productNames = '';
@@ -64,9 +69,7 @@ class OrderListController extends Controller
                 ->addColumn('action', function ($data) {
                     $viewRoute = route('show.block.user', ['id' => $data->id]);
                     return '<div>
-                             <a class="btn btn-sm btn-primary" href="' . $viewRoute . '">
-                                 <i class="fa-solid fa-eye"></i>
-                             </a>
+                             
                             <button type="button" onclick="showDeleteAlert(' . $data->id . ')" class="btn btn-sm btn-danger">
                              <i class="fa-regular fa-trash-can"></i>
                          </button>
@@ -97,7 +100,8 @@ class OrderListController extends Controller
     // Update the order's status
     $order->status = $request->status;
     $order->save();
-
+    $user = $order->user; // Assuming there's a relationship between Order and User
+    $user->notify(new OrderNotification($order));
     return response()->json(['status' => true, 'message' => 'Status updated successfully']);
 }
 
@@ -123,5 +127,9 @@ public function destroy(string $id)
         ]);
     }
 }
+
+//get notifiction
+
+
 
 }

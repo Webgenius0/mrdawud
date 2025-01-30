@@ -124,7 +124,82 @@ class RemainderController extends Controller
 
     //show remainder-List  by user
 
-    public function remainderList()
+//     public function remainderList()
+// {
+//     try {
+//         $user = auth()->user();
+
+//         if (!$user) {
+//             return response()->json([
+//                 'status' => false,
+//                 'message' => 'User not found.',
+//             ], 404);
+//         }
+
+//         // Fetch reminders and sort them by date and time
+//         $remainders = Remainder::where('user_id', $user->id)
+//             ->with('audio:id,audio')
+//             ->select('id', 'type', 'date', 'time', 'audio')
+//             ->orderBy('date', 'asc')
+//             ->orderBy('time', 'asc')
+//             ->get();
+
+//         if ($remainders->isEmpty()) {
+//             return response()->json([
+//                 'status' => false,
+//                 'message' => 'No reminders found.',
+//             ], 404);
+//         }
+
+//         $now = Carbon::now('Asia/Dhaka'); // Current date and time in Dhaka time zone
+//         $remainingTimes = []; // Store remaining times
+
+//         foreach ($remainders as $remainder) {
+//             // Make sure reminder time is in Asia/Dhaka timezone
+//             $reminderDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $remainder->date . ' ' . $remainder->time, 'Asia/Dhaka');
+            
+//             if ($reminderDateTime->greaterThan($now)) {
+//                 $remainingTime = $reminderDateTime->diffForHumans($now, [
+//                     'syntax' => Carbon::DIFF_ABSOLUTE,
+//                 ]);
+//                 $remainingTimes[] = [
+//                     'type' => ucfirst($remainder->type),
+//                     'remaining_time' => $remainingTime,
+//                     'time' => $reminderDateTime->format('g:i A'),
+//                 ];
+//             }
+//         }
+
+//         // Check for the next reminder
+//         $nextReminder = collect($remainingTimes)->first();
+
+//         if (!$nextReminder) {
+//             $nextReminder = [
+//                 'type' => 'No upcoming reminders today',
+//                 'remaining_time' => 'N/A',
+//                 'time' => 'N/A',
+//             ];
+//         }
+
+//         return response()->json([
+//             'status' => true,
+//             'message' => 'Reminders fetched successfully.',
+//             'next_reminder' => $nextReminder,
+//             'data' => [
+//                 'remainders' => $remainders,
+//             ],
+//         ], 200);
+
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'Something went wrong.',
+//             'error' => $e->getMessage(),
+//         ], 500);
+//     }
+// }
+
+public function remainderList()
 {
     try {
         $user = auth()->user();
@@ -135,6 +210,18 @@ class RemainderController extends Controller
                 'message' => 'User not found.',
             ], 404);
         }
+
+        // Delete past reminders before fetching
+        $now = Carbon::now('Asia/Dhaka'); // Current date and time in Dhaka time zone
+        Remainder::where('user_id', $user->id)
+            ->where(function($query) use ($now) {
+                $query->whereDate('date', '<', $now->toDateString())
+                    ->orWhere(function($subQuery) use ($now) {
+                        $subQuery->whereDate('date', $now->toDateString())
+                            ->whereTime('time', '<', $now->toTimeString());
+                    });
+            })
+            ->delete();
 
         // Fetch reminders and sort them by date and time
         $remainders = Remainder::where('user_id', $user->id)
@@ -151,7 +238,6 @@ class RemainderController extends Controller
             ], 404);
         }
 
-        $now = Carbon::now('Asia/Dhaka'); // Current date and time in Dhaka time zone
         $remainingTimes = []; // Store remaining times
 
         foreach ($remainders as $remainder) {
