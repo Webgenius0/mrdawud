@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('news_feeds', function (Blueprint $table) {
+        Schema::create('terms_and_conditions', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('description');
-            $table->string('location');
-            $table->string('image');
-            $table->boolean('status')->default(1);
+            $table->longText('shord_description')->nullable();
+            $table->longText('terms')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('news_feeds');
+        Schema::dropIfExists('terms_and_conditions');
     }
 };

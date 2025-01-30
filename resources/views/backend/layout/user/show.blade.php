@@ -25,9 +25,9 @@
                         <div class="card-body pt-12">
                             <div class="user-avatar-section">
                                 <div class=" d-flex align-items-center flex-column">
-                                    <img class="img-fluid rounded mb-4"  src="{{ asset($imagePath) }}" height="120" width="120" alt="User avatar">
+                                    <img class="img-fluid rounded mb-4"  src="{{ $imagePath ? asset($imagePath):asset('avatar/avatar.jpg') }}" height="120" width="120" alt="User avatar">
                                     <div class="user-info text-center">
-                                        <h5>{{$user->name ?? 'N/A'}}</h5>
+                                        <h5>{{$user->username ?? 'N/A'}}</h5>
                                         <span class="badge bg-label-secondary">{{$user->role ?? 'N/A'}}</span>
                                     </div>
                                 </div>

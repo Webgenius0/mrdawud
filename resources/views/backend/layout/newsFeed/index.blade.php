@@ -7,12 +7,12 @@
     <div class="app-content content ">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Product List</h3>
+                <h3 class="card-title">Category List</h3>
                 <div>
                     <button type='button' style='min-width: 115px;' class='btn btn-danger delete_btn d-none'
                         onclick='multi_delete()'>Bulk Delete</button>
-                    <a href="{{ route('admin.product.create') }}" class="btn btn-primary" type="button">
-                        <span>Add Product</span>
+                    <a href="{{ route('newsfeed.create') }}" class="btn btn-primary" type="button">
+                        <span>Add Category</span>
                     </a>
                 </div>
             </div>
@@ -29,12 +29,9 @@
                                     </div>
                                 </th>
                                 <th>Title</th>
+                                <th>Description</th>
                                 <th>Image</th>
-                               <th>Category</th>
-                                <th>Price</th>
-                               <th>Tax&Services</th>
                                 <th>Status</th>
-                                 <th>Stock</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -46,10 +43,11 @@
     </div>
 
     @push('script')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="{{ asset('backend/assets/datatable/js/datatables.min.js') }}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
         <script>
             let table = document.getElementById("data-table");
@@ -86,12 +84,11 @@
                         pagingType: "full_numbers",
                         dom: "<'row justify-content-between table-topbar'<'col-md-2 col-sm-4 px-0'l><'col-md-2 col-sm-4 px-0'f>>tipr",
                         ajax: {
-                            url: "{{ route('admin.product.index') }}",
+                            url: "{{ route('news.feed') }}",
                             type: "get",
                         },
 
-                        columns: [
-                            {
+                        columns: [{
                                 data: 'bulk_check',
                                 name: 'bulk_check',
                                 orderable: false,
@@ -104,34 +101,16 @@
                                 searchable: false
                             },
                             {
+                                data: 'description',
+                                name: 'description',
+                                orderable: false,
+                                searchable: false
+                            },
+                            {
                                 data: 'image',
                                 name: 'image',
                                 orderable: false,
                                 searchable: false
-                            },
-
-                            {
-                                data: 'category_title',
-                                name: 'category_title',
-                                orderable: false,
-                                searchable: false
-                            },
-
-                             {
-                                data: 'price',
-                                name: 'price',
-                                orderable: false,
-                                searchable: false
-                                
-                            },
-                            {
-                                data: 'taxes',
-                                name: 'taxes',
-                                orderable: false,
-                                searchable: false,
-                                render: function(data, type, row) {
-                                    return data ? data + '%' : '0%'; 
-                                }
                             },
                             {
                                 data: 'status',
@@ -139,15 +118,6 @@
                                 orderable: false,
                                 searchable: false
                             },
-
-                           
-                            {
-                                data: 'stock',
-                                name: 'stock',
-                                orderable: false,
-                                searchable: false
-                            },
-
                             {
                                 data: 'action',
                                 name: 'action',
@@ -180,7 +150,7 @@
             }
 
             function deleteArticle(id) {
-                let deleteUrl = '{{ route('admin.product.destroy', ':id') }}'.replace(':id', id);
+                let deleteUrl = '{{ route('newsfeed.destroy', ':id') }}'.replace(':id', id);
                 fetch(deleteUrl, {
                         method: 'DELETE',
                         headers: {
@@ -238,7 +208,7 @@
 
             // Status Change
             function statusChange(id) {
-                let url = '{{ route('admin.category.status', ':id') }}';
+                let url = '{{ route('newsfeed.status', ':id') }}';
                 $.ajax({
                     type: "GET",
                     url: url.replace(':id', id),
@@ -256,7 +226,7 @@
                         }
                     },
                     error: function(error) {
-                       
+                        // location.reload();
                     }
                 })
             }
@@ -282,7 +252,7 @@
                         text: 'Please check at least one row of the table!',
                     });
                 } else {
-                    let url = "{{ route('admin.product.bulk-delete') }}";
+                    let url = "{{ route('admin.category.bulk-delete') }}";
                     bulk_delete(ids, url, rows, dTable);
                 }
             }

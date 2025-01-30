@@ -83,9 +83,12 @@ class CategoryController extends Controller
 
             $category->location = $request->validated('location');
             $category->save();
-            return redirect()->route('admin.category.index')->with('t-success', 'Category created successfully');
+
+            flash()->success('Category created successfully');
+            return redirect()->route('admin.category.index');
         } catch (\Exception $exception) {
-            return redirect()->route('admin.category.index')->with('t-error', 'Something went wrong');
+            flash()->error($exception->getMessage());
+            return redirect()->route('admin.category.index');
         }
     }
 
@@ -119,9 +122,12 @@ class CategoryController extends Controller
             }
             $category->location = $request->validated('location');
             $category->save();
-            return redirect()->route('admin.category.index')->with('t-success', 'Category updated successfully');
+
+            flash()->success('Category updated successfully');
+            return redirect()->route('admin.category.index');
         } catch (Exception $exception) {
-            return redirect()->route('admin.category.index')->with('t-error', 'Something went wrong');
+            flash()->error($exception->getMessage());
+            return redirect()->route('admin.category.index');
         }
     }
 
@@ -184,6 +190,31 @@ class CategoryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',
+            ]);
+        }
+    }
+
+    // status change
+    public function status(int $id): JsonResponse
+    {
+        $data = Category::findOrFail($id);
+        if ($data->status == 'active') {
+            $data->status = 'inactive';
+            $data->save();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unpublished Successfully.',
+                'data' => $data,
+            ]);
+        } else {
+            $data->status = 'active';
+            $data->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Published Successfully.',
+                'data' => $data,
             ]);
         }
     }

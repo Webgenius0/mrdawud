@@ -81,6 +81,17 @@
                         </div>
 
                         
+                        <div class="col-md-6 col-12">
+                            <div class="form-group">
+                                <label for="location">Taxes</label>
+                                <input type="text" id="taxes" class="form-control"
+                                    value="{{ old('taxes' , $product->taxes) }}" placeholder="Produc taxes"
+                                    name="taxes" />
+                                @error('taxes')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
                         <div class="col-md-4 col-12">
                             <div class="form-group">

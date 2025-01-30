@@ -25,7 +25,7 @@
                             <div class="form-group">
                                 <label for="title">Title</label>
                                 <input type="text" id="title" class="form-control"
-                                    value="{{ old('title') }}" placeholder="Product Title" name="title" />
+                                    value="{{ old('title') }}" placeholder="Product Title" name="title" required/>
                                 @error('title')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -60,8 +60,8 @@
                                 <label for="location">Price</label>
                                 <input type="text" id="price" class="form-control"
                                     value="{{ old('price') }}" placeholder="Product Price"
-                                    name="price" />
-                                @error('location')
+                                    name="price" required />
+                                @error('price')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -72,14 +72,14 @@
                                 <label for="location">Stock</label>
                                 <input type="text" id="stock" class="form-control"
                                     value="{{ old('stock') }}" placeholder="Produc Stock"
-                                    name="stock" />
+                                    name="stock" required/>
                                 @error('stock')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
 
-                        <!-- <div class="col-md-6 col-12">
+                        <div class="col-md-6 col-12">
                             <div class="form-group">
                                 <label for="location">Taxes</label>
                                 <input type="text" id="taxes" class="form-control"
@@ -89,14 +89,14 @@
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div> -->
+                        </div>
 
                         
 
                         <div class="col-md-4 col-12">
                             <div class="form-group">
                                 <label for="image">Product Image</label>
-                                <input class="form-control dropify" accept="image/*" type="file" name="image">
+                                <input class="form-control dropify" accept="image/*" type="file" name="image" required>
                                 @error('image')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
