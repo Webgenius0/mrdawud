@@ -57,6 +57,7 @@ class SettingController extends Controller
 
     public function adminSettingUpdate(AdminSettingUpdateRequest $request)
     {
+        //dd($request->all());
         $title     = $request->input('title');
         $shortName = $request->input('system_short_name');
 

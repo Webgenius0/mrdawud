@@ -35,7 +35,7 @@
                     {{-- Short Description Field --}}
                     <div class="form-group">
                         <label for="shord_description">Terms:</label>
-                        <textarea name="shord_description" class="ck-editor form-control @error('shord_description') is-invalid @enderror">{{ old('shord_description') ??$termsAndConditions->shord_description }}</textarea>
+                        <textarea name="shord_description" class="ck-editor form-control @error('shord_description') is-invalid @enderror">{{ old('shord_description') ??$termsAndConditions->shord_description?? 'N/A' }}</textarea>
                         @error('shord_description')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -46,7 +46,7 @@
                     {{-- Full Terms Field --}}
                     <div class="form-group">
                         <label for="terms"> Conditions:</label>
-                        <textarea name="terms" class="ck-editor form-control @error('terms') is-invalid @enderror">{{ old('terms') ??$termsAndConditions->terms }}</textarea>
+                        <textarea name="terms" class="ck-editor form-control @error('terms') is-invalid @enderror">{{ old('terms') ??$termsAndConditions->terms ?? 'N/A' }}</textarea>
                         @error('terms')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror

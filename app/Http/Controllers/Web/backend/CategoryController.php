@@ -193,4 +193,29 @@ class CategoryController extends Controller
             ]);
         }
     }
+
+    // status change
+    public function status(int $id): JsonResponse
+    {
+        $data = Category::findOrFail($id);
+        if ($data->status == 'active') {
+            $data->status = 'inactive';
+            $data->save();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unpublished Successfully.',
+                'data' => $data,
+            ]);
+        } else {
+            $data->status = 'active';
+            $data->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Published Successfully.',
+                'data' => $data,
+            ]);
+        }
+    }
 }
