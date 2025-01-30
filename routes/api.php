@@ -15,7 +15,9 @@ use App\Http\Controllers\API\category\CategoryController;
 use App\Http\Controllers\API\BlockUserController;
 use App\Http\Controllers\API\ReportUserController;
 use App\Http\Controllers\API\addTocart\AddToCartController;
+use App\Http\Controllers\API\category\DemoCategoryController;
 use App\Http\Controllers\API\Frontend\OrderManagement;
+use App\Http\Controllers\API\notification\GetNotificationController;
 use App\Http\Controllers\API\order\OrderManagementController;
 use App\Http\Controllers\API\stripe\BillingAddressController;
 use App\Http\Controllers\API\stripe\StripePaymentController;
@@ -347,4 +349,14 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::controller(StripePaymentController::class)->group(function () {
         Route::post('/payment', 'StripePayment');
     });
+
+    Route::controller(GetNotificationController::class)->group(function () {
+        Route::get('/get-notification', 'getUserNotifications');
+    });
+
+    Route::controller(DemoCategoryController::class)->group(function () {
+        Route::get('/demo-category', 'showDemoCategory');
+    });
 });
+
+Route::post('/webhook', [StripePaymentController::class, 'webhook']);

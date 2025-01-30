@@ -31,7 +31,7 @@ class NewsFeedController extends Controller
                 ->addColumn('status', function ($data) {
                     $status = $data->status;
                     return '<div class="form-check form-switch mb-2">
-                                <input class="form-check-input" onclick="showStatusChangeAlert(' . $data->id . ')" type="checkbox" ' . ($status == 'active' ? 'checked' : '') . '>
+                                <input class="form-check-input" onclick="showStatusChangeAlert(' . $data->id . ')" type="checkbox" ' . ($status == '1' ? 'checked' : '') . '>
                             </div>';
                 })
                 ->addColumn('bulk_check', function ($data) {
@@ -139,7 +139,7 @@ class NewsFeedController extends Controller
                 'data' => $data,
             ]);
         } else {
-            $data->status = 'active';
+            $data->status = '1';
             $data->save();
 
             return response()->json([
@@ -199,24 +199,20 @@ public function update(Request $request, NewsFeed $newsfeed)
         Log::info('Category updated', ['newsfeed_id' => $newsfeed->id, 'title' => $newsfeed->title]);
 
         // Return a success response
-        return response()->json([
-            'success' => true,
-            'message' => 'Category updated successfully!',
-        ]);
+        flash()->success('News Feed updated successfully');
+        return redirect()->route('news.feed');
     } catch (\Exception $exception) {
         // Log the error
-        Log::error('Error updating category', [
-            'error_message' => $exception->getMessage(),
-            'newsfeed_id' => $newsfeed->id,
-        ]);
+        flash()->error($exception->getMessage());
+        return redirect()->route('news.feed');
 
-        // Return error response
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $exception->getMessage(),
-        ]);
+      
+        
     }
 }
+
+
+
 
 
 }

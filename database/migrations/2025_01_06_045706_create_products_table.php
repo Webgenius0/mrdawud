@@ -20,7 +20,7 @@ return new class extends Migration
             $table->float('taxes',10,2)->default(0);
             $table->string('image')->nullable();
             $table->integer('stock');
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active');
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->dateTime('deleted_at')->nullable();

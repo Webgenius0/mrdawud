@@ -22,7 +22,7 @@
                             </th>
                             <th>Order Id</th>
                             <th>Customer Name</th>
-
+                            <th>Customer Payment Id</th>
                             <th>Product Name</th>
                             <th>Quantity</th>
                             <th>Total Price</th>
@@ -100,6 +100,12 @@
                         searchable: false
                     },
 
+                    {
+                        data: 'stripe_customer_id',
+                        name: 'stripe_customer_id',
+                        orderable: false,
+                        searchable: false
+                    },
                     {
                 data: 'product_name', 
                 name: 'product_name', 

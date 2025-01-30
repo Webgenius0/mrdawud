@@ -11,7 +11,7 @@
                 <div>
                     <button type='button' style='min-width: 115px;' class='btn btn-danger delete_btn d-none'
                         onclick='multi_delete()'>Bulk Delete</button>
-                    <a href="{{ route('admin.category.create') }}" class="btn btn-primary" type="button">
+                    <a href="{{ route('demo.category.create') }}" class="btn btn-primary" type="button">
                         <span>Add Category</span>
                     </a>
                 </div>
@@ -29,6 +29,7 @@
                                     </div>
                                 </th>
                                 <th>Title</th>
+                                <th>Location</th>
                                 <th>Image</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -82,7 +83,7 @@
                         pagingType: "full_numbers",
                         dom: "<'row justify-content-between table-topbar'<'col-md-2 col-sm-4 px-0'l><'col-md-2 col-sm-4 px-0'f>>tipr",
                         ajax: {
-                            url: "{{ route('admin.category.index') }}",
+                            url: "{{ route('demo.category.list') }}",
                             type: "get",
                         },
 
@@ -95,6 +96,12 @@
                             {
                                 data: 'title',
                                 name: 'title',
+                                orderable: false,
+                                searchable: false
+                            },
+                            {
+                                data: 'short_description',
+                                name: 'short_description',
                                 orderable: false,
                                 searchable: false
                             },
@@ -142,7 +149,7 @@
             }
 
             function deleteArticle(id) {
-                let deleteUrl = '{{ route('admin.category.destroy', ':id') }}'.replace(':id', id);
+                let deleteUrl = '{{ route('demo.category.destroy', ':id') }}'.replace(':id', id);
                 fetch(deleteUrl, {
                         method: 'DELETE',
                         headers: {
@@ -200,7 +207,7 @@
 
             // Status Change
             function statusChange(id) {
-                let url = '{{ route('admin.category.status', ':id') }}';
+                let url = '{{ route('demo.category.status', ':id') }}';
                 $.ajax({
                     type: "GET",
                     url: url.replace(':id', id),
@@ -210,9 +217,8 @@
                         $('#data-table').DataTable().ajax.reload();
                         if (resp.success === true) {
                             // show toast message
-                         
                             toastr.success(resp.message);
-                            
+                           
                         } else if (resp.errors) {
                             toastr.error(resp.errors[0]);
                         } else {

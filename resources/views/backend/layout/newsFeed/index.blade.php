@@ -7,12 +7,12 @@
     <div class="app-content content ">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Category List</h3>
+                <h3 class="card-title">NewsFeed List</h3>
                 <div>
                     <button type='button' style='min-width: 115px;' class='btn btn-danger delete_btn d-none'
                         onclick='multi_delete()'>Bulk Delete</button>
                     <a href="{{ route('newsfeed.create') }}" class="btn btn-primary" type="button">
-                        <span>Add Category</span>
+                        <span>Add Newsfeed</span>
                     </a>
                 </div>
             </div>

@@ -16,8 +16,10 @@ use App\Http\Controllers\Web\backend\BlockUserController;
 use App\Http\Controllers\Web\backend\settings\MailSettingsController;
 use App\Http\Controllers\Web\backend\admin\TermsAndConditionsController;
 use App\Http\Controllers\Web\backend\NewsFeedController;
+use App\Http\Controllers\Web\backend\admin\ShowCategoryController;
 
 use App\Models\Product;
+use Spatie\Permission\Commands\Show;
 
 Route::middleware(['auth'])->group(function () {
     Route::controller(SettingController::class)->group(function () {
@@ -39,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/newsfeed/destroy/{category}', 'destroy')->name('newsfeed.destroy');
         Route::get('/newsfeed/status/{id}', 'status')->name('newsfeed.status');
         Route::get('/newsfeed/edit/{category}', 'edit')->name('newsfeed.edit');
-        Route::post('/update/{newsfeed}', 'update')->name('newsfeed.update');
+        Route::post('/update/{newsFeed}', 'update')->name('newsfeed.update');
     });
     //profile Settings Controller
     Route::controller(ProfileSettingController::class)->group(function () {
@@ -70,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/order/list', 'index')->name('order.list');
         Route::post('/orders/update-status', 'updateStatus')->name('orders.updateStatus');
         Route::delete('/order/delete/{destroy}', 'destroy')->name('order.destroy');
+        //for notification 
+        Route::get('/user/notifications', 'getUserNotifications')->name('user.notifications');
     });
 
     Route::prefix('permissions')->controller(PremissionController::class)->group(function () {
@@ -129,6 +133,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/stripe/update', 'stripeSettingUpdate')->name('stripe.update');
     });
 
-
+Route::controller(ShowCategoryController::class)->group(function () {    
+    Route::get('/democategory/list', 'index')->name('demo.category.list');
+    Route::get('/democategory/create', 'create')->name('demo.category.create');
+    Route::post('/democategory/store', 'store')->name('demo.category.store');
+    Route::get('/democategory/edit/{category}', 'edit')->name('demo.category.edit');
+    Route::post('/democategory/update/{category}', 'update')->name('demo.category.update');
+    Route::delete('/democategory/destroy/{category}', 'destroy')->name('demo.category.destroy');
+    Route::get('/democategory/status/{id}', 'status')->name('demo.category.status');
+    
+});
 
 });

@@ -238,7 +238,7 @@
 
             // Status Change
             function statusChange(id) {
-                let url = '{{ route('admin.category.status', ':id') }}';
+                let url = '{{ route('admin.product.status', ':id') }}';
                 $.ajax({
                     type: "GET",
                     url: url.replace(':id', id),
