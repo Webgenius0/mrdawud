@@ -176,7 +176,7 @@ class BillingAddressController extends Controller
                     'order_items.quantity',           // Fetch product quantity from order_items table
                     'order_items.price as unite_price', // Fetch product price from order_items table
                     'orders.sub_total', 
-                    'orders.tax', 
+                    'orders.taxes', 
                     'orders.status', 
                     'orders.created_at'
                 )
@@ -216,9 +216,14 @@ class BillingAddressController extends Controller
                     $order->status_message = 'Order is being processed';
                 } elseif ($order->status === 'completed') {
                     $order->status_message = 'Product collected';
-                } elseif ($order->status === 'canceled') {
+                } 
+                elseif ($order->status === 'canceled') {
                     $order->status_message = 'Your order request has been cancelled';
-                } else {
+                }
+                elseif ($order->status === 'pending') {
+                    $order->status_message = 'Your order request has been successfully placed';
+                }
+                 else {
                     $order->status_message = 'Unknown status'; // Optional, in case there are other status types
                 }
     
