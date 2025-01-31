@@ -20,6 +20,7 @@ class BillingAddress extends Model
         'city',
         'state',
         'zip_code',
+        'billing_address_id',
     ];
 
     // Define the relationship with the User model

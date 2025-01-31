@@ -16,19 +16,21 @@ class AddToCartController extends Controller
     public function addToCart($product_id, Request $request)
     {
         // Check if the product exists
-       
         $product = Product::find($product_id);
-        $category=Category::where(['id' => $product->category_id])->first();
-
+    
+        // If the product doesn't exist, return an error message
         if (!$product) {
             return response()->json([
                 'message' => 'Product not found.',
-            ], 404);
+            ], 404);  // 404 is appropriate since the resource was not found
         }
-
+    
+        // Fetch the category for the product
+        $category = Category::where('id', $product->category_id)->first();
+    
         $userId = auth()->check() ? auth()->id() : null; // Use user_id for logged-in users
         $sessionId = session()->getId(); // Use session_id for guests
-
+    
         // Check if the product is already in the cart
         $cartItem = AddToCart::where(function ($query) use ($userId, $sessionId) {
             $query->where('session_id', $sessionId);
@@ -36,7 +38,7 @@ class AddToCartController extends Controller
                 $query->orWhere('user_id', $userId);
             }
         })->where('product_id', $product_id)->first();
-
+    
         if ($cartItem) {
             // Update the quantity if the product exists in the cart
             $cartItem->update([
@@ -51,18 +53,18 @@ class AddToCartController extends Controller
                 'quantity' => 1, // Default quantity
                 'size' => $request->size ?? null, // Optional
                 'price' => $product->price, // Assume price is a column in your products table
-                //'product_category' => $category->title ?? null, // Optional
-                'product_category' => $category->title ?? null, // Optional
+                'product_category' => $category ? $category->title : null, // Check if category exists
                 'product_name' => $product->title ?? null, // Optional   
                 'product_code' => $product->code ?? null, // Optional
                 'session_id' => $sessionId,
             ]);
         }
-
+    
         return response()->json([
             'message' => 'Product added to cart successfully',
         ]);
     }
+    
 
 //show cart
 public function cartList()
