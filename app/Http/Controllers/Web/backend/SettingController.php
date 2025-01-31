@@ -7,6 +7,8 @@ use App\Services\SettingService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminSettingUpdateRequest;
 use App\Http\Requests\GeneralSettingStoreRequest;
+use Illuminate\Support\Facades\Log;
+
 
 class SettingController extends Controller
 {
@@ -57,7 +59,7 @@ class SettingController extends Controller
 
     public function adminSettingUpdate(AdminSettingUpdateRequest $request)
     {
-        //dd($request->all());
+        
         $title     = $request->input('title');
         $shortName = $request->input('system_short_name');
 
@@ -67,8 +69,8 @@ class SettingController extends Controller
             $logo = null;
         }
 
-        if($request->hasFile('mini_logo')){
-            $miniLogo = $request->file('mini_logo');
+        if($request->hasFile('admin_mini_logo')){
+            $miniLogo = $request->file('admin_mini_logo');
         }else{
             $miniLogo = null;
         }
@@ -80,6 +82,7 @@ class SettingController extends Controller
         }
         
         $copyright = $request->input('copyright');
+        Log::info('adminSettingUpdate', ['title' => $title, 'shortName' => $shortName, 'logo' => $logo, 'miniLogo' => $miniLogo, 'favicon' => $favicon, 'copyright' => $copyright]);
         
         return $this->settingServiceObj->adminSettingUpdate($title, $shortName, $logo, $miniLogo, $favicon, $copyright);
     }

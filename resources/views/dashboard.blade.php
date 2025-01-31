@@ -40,7 +40,10 @@ $order = Order::count();
                                     <a href="javascript:void(0);">{{$user}}</a>
 
                                 </h3>
-                                <button type="button" class="btn btn-primary align-self-start">View Sales</button>
+                                <button type="button" class="btn btn-primary align-self-start" onclick="window.location.href='{{ route('user.list')}}'">
+                                    View Sales
+                                </button>
+
                                 <!-- <img src="{{ asset('backend/app-assets/images/illustration/badge.svg') }}" class="congratulation-medal" alt="Medal Pic" /> -->
                             </div>
                         </div>
@@ -57,7 +60,10 @@ $order = Order::count();
                                 <h3 class="mb-75 mt-2 pt-50">
                                     <a href="javascript:void(0);">{{$product}}</a>
                                 </h3>
-                                <button type="button" class="btn btn-primary align-self-start">View Sales</button>
+                                <button type="button" class="btn btn-primary align-self-start" onclick="window.location.href='{{ route('admin.product.index') }}'">
+                                    View Sales
+                                </button>
+
 
                             </div>
                         </div>
@@ -75,7 +81,10 @@ $order = Order::count();
                                 </h2>
 
                                 <!-- Button aligned to the left -->
-                                <button type="button" class="btn btn-primary align-self-start">View Order list</button>
+                                <button type="button" class="btn btn-primary align-self-start" onclick="window.location.href='{{ route('order.list') }}'">
+                                    View Sales
+                                </button>
+
 
                             </div>
                         </div>
