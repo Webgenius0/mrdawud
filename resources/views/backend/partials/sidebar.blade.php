@@ -271,6 +271,10 @@
                             </span>
                         </a>
                     </li>
+
+
+
+                    
                 </ul>
 
                 <li class="nav-item {{ request()->routeIs('terms.and.conditions') ? 'active' : '' }}">
