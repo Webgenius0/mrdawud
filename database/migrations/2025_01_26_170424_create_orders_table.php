@@ -19,7 +19,7 @@ return new class extends Migration
             //$table->unsignedBigInteger('category_id');
             //$table->unsignedBigInteger('billing_address_id');
             $table->string('payment_method_id');
-            $table->enum('status', ['ongoing',  'completed', 'canceled'])->default('ongoing');
+            $table->enum('status', ['success','failed','pending','ongoing','completed','canceled'])->default('pending');
             $table->string('product_name')->nullable();
             $table->decimal('sub_total')->nullable();
             $table->decimal('total_price')->nullable();

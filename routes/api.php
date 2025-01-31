@@ -22,8 +22,7 @@ use App\Http\Controllers\API\order\OrderManagementController;
 use App\Http\Controllers\API\stripe\BillingAddressController;
 use App\Http\Controllers\API\stripe\StripePaymentController;
 use App\Http\Controllers\API\stripe\StripeCardController;
-
-
+use App\Http\Controllers\API\StripeWebhookController;
 use App\Models\BlockUser;
 use Illuminate\Support\Facades\Route;
 use Stripe\Stripe;
@@ -359,4 +358,4 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     });
 });
 
-Route::post('/webhook', [StripePaymentController::class, 'webhook']);
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
