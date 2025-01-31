@@ -259,7 +259,8 @@ class OrderManagementController extends Controller
                 'quantity' => $quantityToOrder,
                 'price' => $productRecord->price,
                 'taxes' => $taxes,
-                'total_price' => $totalPrice ,  // Total price including taxes
+                'total_price' => $totalPrice, 
+                 
             ]);
     
             // If the quantity in AddToCart was greater than the available stock, update the stock of the product
