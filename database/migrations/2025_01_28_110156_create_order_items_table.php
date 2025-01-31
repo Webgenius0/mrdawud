@@ -18,7 +18,7 @@ return new class extends Migration
     $table->integer('quantity');
     $table->decimal('price', 8, 2);
     $table->decimal('taxes', 8, 2);
-    $table->decimal('total_price', 8, 2)->virtualAs('quantity * price'); // Generated column
+    $table->decimal('total_price', 8, 2); // Generated column
     $table->timestamps();
         });
     }

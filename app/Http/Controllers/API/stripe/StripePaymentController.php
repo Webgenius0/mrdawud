@@ -93,6 +93,7 @@ class StripePaymentController extends Controller
         $user=auth()->user();
         $customerData = [
             'name' => $user->username,
+            'email' => $user->email
         ];
 
         if (!empty($user->email)) {
