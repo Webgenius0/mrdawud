@@ -37,7 +37,7 @@ class UserController extends Controller
                 'video.*' => 'nullable|mimes:mp4,avi,mkv|max:20000',
                 'title' => 'nullable|array',
                 'title.*' => 'nullable|string',
-                'description' => 'nullable|array',
+                'description' => 'nullable|array',  
                 'description.*' => 'nullable|string',
                 'document' => 'nullable|array',
                 'document.*' => 'nullable|mimes:pdf,doc,docx|max:20000',
