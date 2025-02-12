@@ -22,8 +22,8 @@
                     <input type="hidden" name="id" value="{{ $product->id }}">
                     @csrf
                     @method('PUT')
-                     <div class="row">
-                        <div class="col-md-6 col-12">
+                     <div class="row"> 
+                        <div class="col-md-6 col-12 w-100">
                             <div class="form-group">
                                 <label for="title">Title</label>
                                 <input type="text" id="title" class="form-control"
@@ -93,7 +93,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 col-12">
+                        <div class="col-md-4 col-12 w-100">
                             <div class="form-group">
                                 <label for="image">Product Image</label>
                                 <input class="form-control dropify" accept="image/*" data-default-file="{{ asset($product->image) }}" type="file" name="image">

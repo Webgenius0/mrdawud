@@ -40,101 +40,75 @@ class StripePaymentController extends Controller
             'data' => $data
         ], $code);
     }
-
    /**
     * Add payment method to customer
     */
-   public function addMethodToCustomer(Request $request)
-   {
-       // Validate incoming request
-       $validator = Validator::make($request->all(), [
-           'payment_method_id' => 'required|string',
-       ]);
-       // If validation fails, return error message
-       if ($validator->fails()) {
-           return $this->sendError('Validation error:'.$validator->errors()->first(),[], 422); // Change the HTTP code if needed
-       }
+    public function addMethodToCustomer(Request $request)
+    {
+       // dd($request->all());
+        $validator = Validator::make($request->all(), [
+            'payment_method_id' => 'required|string',
+        ]);
+        
+        if ($validator->fails()) {
+            return $this->sendError('Validation error: ' . $validator->errors()->first(), [], 422);
+        }
 
-       // Retrieve validated data
-       $validatedData = $validator->validated();
+        // Retrieve validated data
+        $validatedData = $validator->validated();
 
-       try {
-           $paymentMethod = PaymentMethod::retrieve($validatedData["payment_method_id"]);
+        try {
+            $paymentMethod = PaymentMethod::retrieve($validatedData["payment_method_id"]);
 
-           // Check if the PaymentMethod is attached or reusable
-           if ($paymentMethod->attached) {
-               return  $this->sendError('This payment method is already attached to a customer or is not reusable',[], 422);
-           }
-
-            // Check if the PaymentMethod is reusable
-            if ($paymentMethod->card->checks->cvc_check !== 'pass') {
-                return $this->sendError('Payment method is not reusable due to invalid card details', [], 422);
+            // Check if the PaymentMethod is attached or reusable
+            if ($paymentMethod->attached) {
+                return $this->sendError('This payment method is already attached to a customer or is not reusable', [], 422);
             }
 
-           // Create a new customer if it doesn't exist
-           $customer = $this->createCustomerIfNotExist();
-
-           if (!$customer || empty($customer->id)) {
-               return $this->sendError('Customer not found in Stripe.', (object)[], 404);
-           }
+            // Create a new customer if it doesn't exist
+            $customer = $this->createCustomerIfNotExist();
 
             // Attach the payment method to the customer
             $paymentMethod->attach([
                 'customer' => $customer->id,
             ]);
-            dd($paymentMethod->id);
 
             // Update the customer's default payment method
             Customer::update($customer->id, [
-                "invoice_settings" => [
-                    'default_payment_method' => $validatedData['payment_method_id'],
+                'invoice_settings' => [
+                    'default_payment_method' => $request->payment_method_id,
                 ]
             ]);
 
-           return $this->sendResponse([], 'Card added successfully');
-       } catch (\Exception $e) {
-           return $this->sendError($e->getMessage(), [], 422);
-       }
-   }
-
-
-
-   /**
-    * Create a new customer if it doesn't exist
-    */
+            // Respond with success
+            return $this->sendResponse([], 'Payment method attached successfully');
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            return $this->sendError('Stripe API error: ' . $e->getMessage(), [], 500);
+        } catch (\Exception $e) {
+            return $this->sendError('Error attaching payment method: ' . $e->getMessage(), [], 500);
+        }
+    }
     private function createCustomerIfNotExist()
     {
-        //get current user
-        $user = auth()->user();
-        //customer data
+        $user=auth()->user();
         $customerData = [
             'name' => $user->username,
-            'email' => $user->email
         ];
-        // Check if the user has an email
+
         if (!empty($user->email)) {
             $customerData['email'] = $user->email;
         }
-
-        // Check if the user has a Stripe customer ID
         if (empty($user->stripe_customer_id)) {
-            // If not, create a new Stripe customer
             $customer = Customer::create($customerData);
             $user->stripe_customer_id = $customer->id;
             $user->save();
         } else {
-            // Retrieve the existing customer on Stripe
             $customer = Customer::retrieve($user->stripe_customer_id);
-            if (!$customer) {
-                $customer = Customer::create($customerData);
-                $user->stripe_customer_id = $customer->id;
-                $user->save();
-            }
+            $user->stripe_customer_id = $customer->id;
+            $user->save();
         }
         return $customer;
     }
-
-
    /**
      * Retrieve customer payment methods with auth user stripe customer ID
      */

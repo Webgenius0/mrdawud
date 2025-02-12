@@ -37,11 +37,11 @@ class UserController extends Controller
                 'video.*' => 'nullable|mimes:mp4,avi,mkv|max:20000',
                 'title' => 'nullable|array',
                 'title.*' => 'nullable|string',
-                'description' => 'nullable|array',
+                'description' => 'nullable|array',  
                 'description.*' => 'nullable|string',
                 'document' => 'nullable|array',
                 'document.*' => 'nullable|mimes:pdf,doc,docx|max:20000',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Single image validation
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp', // Single image validation
             ]);
         } else {
             $validation = Validator::make($request->all(), [

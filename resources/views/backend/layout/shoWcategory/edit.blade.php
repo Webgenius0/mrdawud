@@ -44,7 +44,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 col-12">
+                        <div class="col-md-4 col-12 w-100">
                             <div class="form-group">
                                 <label for="image">Featured Image</label>
                                 <input class="form-control dropify" accept="image/*" data-default-file="{{ asset($category->image) }}" type="file" name="image">
@@ -55,7 +55,7 @@
                         </div>
                         <div class="col-12 mt-3">
                             <button type="submit" class="btn btn-primary mr-1">Submit</button>
-                            <a href="{{ route('admin.category.index') }}" class="btn btn-outline-danger">Cancel</a>
+                            <a href="{{ route('demo.category.list') }}" class="btn btn-outline-danger">Cancel</a>
                         </div>
                     </div>
                 </form>

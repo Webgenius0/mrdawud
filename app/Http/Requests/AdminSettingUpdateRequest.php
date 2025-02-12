@@ -34,8 +34,8 @@ class AdminSettingUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'logo.image'      => 'The System logo must be an image',
-            'admin_mini_logo.image' => 'The Mini logo must be an image'
+            'logo'      => 'The System logo must be an image',
+            'admin_mini_logo' => 'The Mini logo must be an image'
         ];
     }
 }

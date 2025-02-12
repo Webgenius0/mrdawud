@@ -11,19 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('billing_addresses', function (Blueprint $table) {
+        Schema::create('donations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('order_id') ->nullable();
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('name');
-
-            $table->string('address');
-            $table->string('city');
-            $table->string('state');
-            $table->string('zip_code');
-            $table->string('phone_number');
+            $table->string('address_id')->nullable();
+            $table->string('customer_stripe_id')->nullable();
+            $table->decimal('donation_amount' ,8,2)->nullable();
+            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
             $table->timestamps();
         });
     }
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('billing_addresses');
+        Schema::dropIfExists('donations');
     }
 };
