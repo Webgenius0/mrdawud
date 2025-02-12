@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\API;
 
-use Carbon\Carbon;
-use App\Models\User;
 use App\Helper\Helper;
-use App\Traits\apiresponse;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Traits\apiresponse;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserAuthController extends Controller
 {
@@ -28,67 +29,86 @@ class UserAuthController extends Controller
     {
         // Validate incoming request
         $validator = Validator::make($request->all(), [
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'username' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', 'confirmed'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'language' => ['required', 'string', 'in:en,ar'],
             'city' => ['nullable', 'string', 'max:50'],
             'state' => ['nullable', 'string', 'max:50'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'], // Single image upload
             'age' => ['nullable', 'integer', 'min:14'],
             'phone' => ['nullable', 'string'],
             'bio' => ['nullable', 'string'],
+            'lat' => ['nullable', 'string'],
+            'lng' => ['nullable', 'string'],
+            'country' => ['nullable', 'string'],
         ]);
-
+    
         if ($validator->fails()) {
+            Log::error('Validation failed during registration.', ['errors' => $validator->errors()]);
             return $this->error([], $validator->errors(), 422);
         }
-
+    
         DB::beginTransaction();
-
+    
         try {
+            // Prepare user data
             $validated = $request->only([
-                'username',
-                'email',
-                'password',
-                'language',
-                'city',
-                'state',
-                'age',
-                'phone',
-                'bio',
+                'username', 'email', 'password', 'language', 'city', 'state', 
+                'age', 'phone', 'bio', 'lat', 'lng', 'country'
             ]);
-
+    
+            Log::info('Registering user...');
+    
             $validated['password'] = bcrypt($validated['password']);
 
-            $user = User::create($validated);
-
-            if ($request->hasFile('images')) {
-                $userImages = [];
-                foreach ($request->file('images') as $image) {
-                    $url = Helper::fileUpload($image, 'users', $user->username . "-" . time());
-                    array_push($userImages, [
-                        'image' => $url
-                    ]);
-                }
-                $user->images()->createMany($userImages); 
+            if($request->role === 'instructor')
+            {
+                $validated['username'] = $request->input('first_name') . ' ' . $request->input('last_name');
             }
 
+            $user = User::create($validated);
+            Log::info('User created successfully:', ['user_id' => $user->id]);
+    
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+    
+                // Upload the image and get its URL
+                $url = Helper::fileUpload(
+                    $image, 
+                    'users', 
+                    $user->username . "-" . uniqid() . '.' . $image->getClientOriginalExtension()
+                );
+    
+                // Insert into the user_images table
+                $user->images()->create([
+                    'user_id' => $user->id,
+                    'image' => $url,
+                ]);
+    
+                Log::info('Image uploaded and saved to user_images:', ['user_id' => $user->id, 'image_url' => $url]);
+            }
+    
+            // Generate OTP for the user
             $this->generateOtp($user);
             DB::commit();
+    
+            // Return success response
             return $this->success([
                 'user' => $user->only('id', 'username', 'email', 'language', 'phone'),
+                'token' => $this->respondWithToken(JWTAuth::fromUser($user)),
             ], 'Check your email to verify your account', 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error during registration:', ['exception' => $e->getMessage()]);
             return $this->error([], $e->getMessage(), 400);
         }
     }
-
+    
     public function login(Request $request)
     {
+        //dd($request);
         $credentials = $request->only('email', 'password');
 
         // Attempt to log the user in
@@ -97,7 +117,7 @@ class UserAuthController extends Controller
         }
 
         $user = Auth::user();
-        if($user->email_verified_at == null){
+        if ($user->email_verified_at == null) {
             $this->generateOtp($user);
             return $this->error([], 'Check your email to verify your account', 401);
         }
@@ -156,7 +176,6 @@ class UserAuthController extends Controller
 
         $this->generateOtp($user);
 
-
         return $this->success([], 'Check Your Email for Password Reset Otp', 200);
     }
 
@@ -168,9 +187,9 @@ class UserAuthController extends Controller
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email', 
-            'password' => 'required|string|min:8|confirmed', 
-            'otp' => 'required|numeric', 
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'otp' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -193,7 +212,7 @@ class UserAuthController extends Controller
 
         $user->password = Hash::make($request->password);
         $user->otp = null;
-        $user->otp_created_at = null; 
+        $user->otp_created_at = null;
         $user->save();
 
         return response()->json(['message' => 'Password reset successfully.'], 200);
@@ -224,10 +243,10 @@ class UserAuthController extends Controller
      */
     public function varifyOtpWithOutAuth(Request $request)
     {
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
-            'otp' => 'required|numeric', 
-            'action' => 'required|in:email_verification,forgot_password', 
+            'otp' => 'required|numeric',
+            'action' => 'required|in:email_verification,forgot_password',
         ]);
 
         if ($validator->fails()) {
@@ -238,7 +257,7 @@ class UserAuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if($request->action == 'email_verification') {
+        if ($request->action == 'email_verification') {
             if ($user->email_verified_at) {
                 return response()->json([
                     'message' => 'Email already verified.',
@@ -253,7 +272,7 @@ class UserAuthController extends Controller
                 return response()->json([
                     'message' => 'OTP has expired.',
                 ], 400);
-            }            
+            }
             $user->email_verified_at = now();
             $user->otp = null;
             $user->otp_created_at = null;
@@ -263,7 +282,7 @@ class UserAuthController extends Controller
             ], 200);
         }
 
-        if($request->action == 'forgot_password') {
+        if ($request->action == 'forgot_password') {
             if (!$user->otp || !Hash::check($request->otp, $user->otp)) {
                 return response()->json([
                     'message' => 'Invalid OTP!',
@@ -321,7 +340,7 @@ class UserAuthController extends Controller
                 'token_type' => 'bearer',
                 'expires_in' => auth('api')->factory()->getTTL() * 60,
             ], 'Token refreshed successfully', 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->error([], $e->getMessage(), 400);
         }
     }

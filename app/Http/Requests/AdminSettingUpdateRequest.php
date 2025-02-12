@@ -25,16 +25,17 @@ class AdminSettingUpdateRequest extends FormRequest
             'title'             => ['required', 'min:2'],
             'system_short_name' => ['required', 'min:2'],
             'logo'              => ['required', 'image', 'mimes:png,jpg,webp,jpeg'],
-            'mini_logo'         => ['nullable', 'image', 'mimes:png,jpg,webp,jpeg'],
-            'favicon'           => ['nullable', 'image', 'mimes:png,jpg'],
+            'admin_mini_logo'         => ['nullable', 'image', 'mimes:png,jpg,webp,jpeg'],
+            'admin_favicon'           => ['nullable', 'image', 'mimes:png,jpg'],
+            'copyright'         => ['required', 'min:2'],
         ];
     }
 
     public function messages()
     {
         return [
-            'logo.image'      => 'The System logo must be an image',
-            'mini_logo.image' => 'The Mini logo must be an image'
+            'logo'      => 'The System logo must be an image',
+            'admin_mini_logo' => 'The Mini logo must be an image'
         ];
     }
 }

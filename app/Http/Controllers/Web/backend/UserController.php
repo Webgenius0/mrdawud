@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Web\backend;
 
 use App\Models\User;
+use App\Helper\Helper;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\BlockUser;
+use App\Models\ReportUser;
 
 class UserController extends Controller
 {
@@ -21,17 +24,10 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::where('role', 'user')->latest();
+           $data = User::where('role', 'user')->with(['blockuser', 'reportuser.reported_user'])->latest();
+          // $data = BlockUser::with(['blocked_user', 'blocked_user.reportuser'])->get();
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('name', function ($data) {
-                    $name = $data->name;
-                    return $name;
-                })
-                ->addColumn('username', function ($data) {
-                    $username = $data->username;
-                    return $username;
-                })
                 ->addColumn('status', function ($data) {
                     $status = $data->status;
                     return '<div class="form-check form-switch mb-2">
@@ -39,8 +35,18 @@ class UserController extends Controller
                             </div>';
 
                 })
+                ->addColumn('bulk_check', function ($data) {
+                    return Helper::tableCheckbox($data->id);
+
+                })
+                ->addColumn('report', function ($data) {                 
+                    if ($data->reportuser->isEmpty()) {
+                        return 'No blocked report';
+                    }                  
+                    return $data->reportuser->pluck('report')->implode(', ');
+                })
                 ->addColumn('action', function ($data) {
-                    $viewRoute = route('show.user', ['id' => $data->id]);
+                    $viewRoute = route('show.users', ['id' => $data->id]);
                     return '<div>
                          <a class="btn btn-sm btn-primary" href="' . $viewRoute . '">
                              <i class="fa-solid fa-eye"></i>
@@ -50,7 +56,7 @@ class UserController extends Controller
                          </button>
                      </div>';
                 })
-                ->rawColumns(['name', 'username', 'status', 'action'])
+                ->rawColumns(['bulk_check', 'status', 'action'])
                 ->make(true);
         }
 
@@ -59,8 +65,20 @@ class UserController extends Controller
 
     public function show($id)
     {
-        return $this->userServiceObj->show($id);
+        // Fetch the User by ID
+        $user = User::find($id);
+    
+        if (!$user) {
+            abort(404, 'User not found');
+        }     
+        $userImage = $user->image;       
+        $imagePath = $userImage ? $userImage->image : 'uploads/users/avatar.jpg';
+  
+        $user->load('reportuser.reported_user');  
+        return view('backend.layout.user.show', compact('user', 'imagePath'));
     }
+    
+    
 
     /**
      * Change the status of the specified resource.

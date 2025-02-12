@@ -25,7 +25,7 @@
                                     <h2 class="brand-text text-primary ml-1">{{ $setting->title ?? 'Prayer App' }}</h2>
                                 </a>
 
-                                <form class="auth-login-form mt-2" action="{{ route('login') }}" method="POST">
+                                <form class="auth-login-form mt-2" action="{{ route('admin.login') }}" method="POST">
                                     @csrf
                                     <div class="form-group">
                                         <label for="login-email" class="form-label">Email</label>

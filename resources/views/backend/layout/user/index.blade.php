@@ -2,10 +2,13 @@
 @push('style')
     <link rel="stylesheet" href="{{ asset('backend/assets/datatable/css/datatables.min.css') }}">
 @endpush
-@section('title', 'Users')
+@section('title', 'Users List')
 @section('content')
     <div class="app-content content ">
         <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Users List</h3>
+            </div>
             <div class="card-body">
                 <div class="table-responsive mt-4 p-4 card-datatable table-responsive pt-0">
                     <table class="table table-hover" id="data-table">
@@ -17,10 +20,9 @@
                                         <label class="form-check-label" for="select_all"></label>
                                     </div>
                                 </th>
-                                <th>#</th>
-                                <th>Name</th>
                                 <th>Username</th>
                                 <th>Email</th>
+                                
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -84,18 +86,6 @@
                                 searchable: false
                             },
                             {
-                                data: 'DT_RowIndex',
-                                name: 'DT_RowIndex',
-                                orderable: false,
-                                searchable: false
-                            },
-                            {
-                                data: 'name',
-                                name: 'name',
-                                orderable: false,
-                                searchable: false
-                            },
-                            {
                                 data: 'username',
                                 name: 'username',
                                 orderable: false,
@@ -107,6 +97,7 @@
                                 orderable: false,
                                 searchable: false
                             },
+                            
                             {
                                 data: 'status',
                                 name: 'status',

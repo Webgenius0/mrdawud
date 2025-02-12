@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Namu\WireChat\Traits\Chatable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -13,6 +14,7 @@ class User extends Authenticatable implements JWTSubject
 
     use Notifiable;
     use HasRoles;
+    use Chatable;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -23,6 +25,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
         'username',
         'email',
         'password',
@@ -35,6 +38,10 @@ class User extends Authenticatable implements JWTSubject
         'role',
         'status',
         'otp',
+        'role',
+        'lat',
+        'lng',
+        'country',
     ];
 
     /**
@@ -80,4 +87,97 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(UserImages::class);
     }
+
+
+    // Custom logic for allowing chat creation
+    public function canCreateChats(): bool
+    {
+        return $this->hasVerifiedEmail();
+    }
+
+     /**
+    * Returns the URL for the user's cover image (avatar).
+    * Adjust the 'avatar_url' field to your database setup.
+    */
+    public function getCoverUrlAttribute(): ?string
+    {
+      return $this->avatar ?? null;
+    }
+
+    /**
+    * Returns the display name for the user.
+    * Modify this to use your preferred name field.
+    */
+    public function getDisplayNameAttribute(): ?string
+    {
+      return ucfirst($this->username) ?? 'Anonymous';
+    }
+
+    /**
+    * Search for users when creating a new chat or adding members to a group.
+    * Customize the search logic to limit results, such as restricting to friends or eligible users only.
+    */
+    public function searchChatables(string $query)
+    {
+     $searchableFields = ['username', 'email'];
+     return User::where(function ($queryBuilder) use ($searchableFields, $query) {
+        foreach ($searchableFields as $field) {
+                $queryBuilder->orWhere($field, 'LIKE', '%'.$query.'%');
+        }
+      })
+        ->limit(20)
+        ->get();
+    }
+
+    public function videos()
+    {
+        return $this->hasMany(VideoUpload::class);
+    }
+
+   
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    //backend
+    public function reportuser()
+    {
+        return $this->hasMany(ReportUser::class, 'reported_user_id');
+    }
+
+    //block users
+    public function blockuser()
+    {
+        return $this->hasMany(BlockUser::class, 'blocked_user_id');
+    }
+    //social Media
+    public function socialmedia()
+    {
+        return $this->hasMany(Socialmedia::class);
+    }
+
+    public function favouriteTeachers()
+    {
+        return $this->belongsToMany(User::class, 'favourite_teachers', 'user_id', 'teacaher_id');
+    }
+
+    // A user can be favourited by many users as an instructor
+    public function favouredByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favourite_teachers', 'teacher_id', 'user_id');
+    }
+
+    public function order()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+   // In App\Models\User.php
+    public function image()
+    {
+        return $this->hasOne(UserImages::class, 'user_id', 'id');
+    }
+
 }

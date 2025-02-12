@@ -6,10 +6,14 @@ use Exception;
 use App\Services\Service;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Category;
 
 class ProfileSettingController extends Controller
 {
@@ -112,6 +116,18 @@ class ProfileSettingController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+
+    // admin dahsboard show 
+
+    public function adminDashboard()
+    {
+        $user = User::count();
+        $product=Product::count();
+        $category=Category::count();
+        $order=Order::count();
+        return view('dashboard',compact('user','product','category','order'));
     }
     
 }

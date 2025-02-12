@@ -16,14 +16,18 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username', 250)->unique();
+            $table->string('username', 250);
             $table->string('email', 250)->unique();
+            $table->string('phone',20)->nullable();
             $table->string('avatar')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
+           
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin','instructor','user'])->default('user');
+            $table->string('user_payment_methoad_id')->nullable();
+            $table->string('stripe_customer_id')->nullable();
             $table->string('status', 30)->default('active');
             $table->string('otp')->nullable();
             $table->string('otp_created_at')->nullable();
