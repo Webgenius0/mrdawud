@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');  // Ensure user_id column exists
+         
            // $table->unsignedBigInteger('product_id');
             $table->string('uuid')->unique();
             //$table->unsignedBigInteger('category_id');
             //$table->unsignedBigInteger('billing_address_id')->nullable();
-           // $table->foreign('billing_address_id')->references('id')->on('billing_addresses')->onDelete('set null');
+     
             $table->string('payment_method_id')->nullable();
             $table->enum('status', ['success','failed','pending','ongoing','completed','canceled'])->default('pending');
             $table->string('product_name')->nullable();
