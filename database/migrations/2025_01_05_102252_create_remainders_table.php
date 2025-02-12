@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('remainders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->enum('type', ['fajar', 'zuhar', 'asor', 'magrib', 'esha'])->nullable();
+            $table->string('type')->nullable();
             $table->time('time')->nullable();  
             $table->date('date')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
