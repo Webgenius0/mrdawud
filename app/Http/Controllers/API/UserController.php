@@ -41,7 +41,7 @@ class UserController extends Controller
                 'description.*' => 'nullable|string',
                 'document' => 'nullable|array',
                 'document.*' => 'nullable|mimes:pdf,doc,docx|max:20000',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Single image validation
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp', // Single image validation
             ]);
         } else {
             $validation = Validator::make($request->all(), [
